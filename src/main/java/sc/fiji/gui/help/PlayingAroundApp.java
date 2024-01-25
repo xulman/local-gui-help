@@ -1,13 +1,19 @@
 package sc.fiji.gui.help;
 
+import org.scijava.ui.behaviour.io.InputTriggerConfig;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -55,6 +61,9 @@ public class PlayingAroundApp {
 
 	// ==================================================================================================================
 	public static void registerComponentHelp(final JComponent guiComponent, final Path pathToLocalTopic) {
+		guiComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H,0), "local_gui_help_key");
+		guiComponent.getActionMap().put("local_gui_help_key", new LocalFilesHelp(pathToLocalTopic));
+/*
 		guiComponent.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {}
@@ -67,9 +76,13 @@ public class PlayingAroundApp {
 			@Override
 			public void keyReleased(KeyEvent e) {}
 		});
+*/
 	}
 
 	public static void registerComponentHelp(final JComponent guiComponent, final URL urlToRemoteTopic) {
+		guiComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H,0), "local_gui_help_key2");
+		guiComponent.getActionMap().put("local_gui_help_key2", new RemoteContentHelp(urlToRemoteTopic));
+/*
 		guiComponent.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {}
@@ -82,6 +95,7 @@ public class PlayingAroundApp {
 			@Override
 			public void keyReleased(KeyEvent e) {}
 		});
+*/
 	}
 
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
@@ -98,6 +112,47 @@ public class PlayingAroundApp {
 				throw new RuntimeException("Requested help ("
 						+appClass.getSimpleName()+"/"+topic+") as well as default substitute help was not found.");
 			}
+		}
+	}
+
+	/**
+	 * Action associated with its own help data, will show the relevant GUI help dialog.
+	 * Here, the help data is stored locally in some folder.
+	 */
+	static class LocalFilesHelp extends AbstractAction {
+		final Path pathToMyLocalTopic;
+		public LocalFilesHelp(final Path pathToLocalTopic) {
+			super();
+			this.pathToMyLocalTopic = pathToLocalTopic;
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Would be now starting LOCAL help from "+pathToMyLocalTopic);
+		}
+		public boolean accept(Object sender) {
+			System.out.println("Local accept!?");
+			return true;
+			//return super.accept(sender);
+		}
+	}
+	/**
+	 * Action associated with its own help data, will show the relevant GUI help dialog.
+	 * Here, the help data will be fetched from the given URL.
+	 */
+	static class RemoteContentHelp extends AbstractAction {
+		final URL urlToMyRemoteTopic;
+		public RemoteContentHelp(final URL pathToRemoteTopic) {
+			super();
+			this.urlToMyRemoteTopic = pathToRemoteTopic;
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Would be now starting REMOTE help from "+urlToMyRemoteTopic);
+		}
+		public boolean accept(Object sender) {
+			System.out.println("Remote accept!?");
+			return true;
+			//return super.accept(sender);
 		}
 	}
 	// ==================================================================================================================
@@ -155,8 +210,62 @@ public class PlayingAroundApp {
 		final JFrame f = new JFrame("A Simple Demo App");
 		f.setContentPane( contentPane );
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		f.getContentPane().setFocusable(true);
+		f.getContentPane().addKeyListener(new MyKeyListener("APP window"));
+		f.getContentPane().addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				System.out.println("mouse entered the app");
+				f.getContentPane().requestFocusInWindow();
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				System.out.println("mouse left the app");
+			}
+		});
+
+		//f.getRootPane().setFocusable(true);
+		//f.getRootPane().grabFocus();
+
+/*
+		f.getRootPane().getInputMap().put(KeyStroke.getKeyStroke('h'),"ruewiruw");
+		f.getRootPane().getInputMap().put(KeyStroke.getKeyStroke('H'),"ruewiruw");
+		AbstractAction a = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("hhhhhhhhh "+e.getSource());
+			}
+		};
+		f.getRootPane().getActionMap().put("ruewiruw",a);
+*/
+
 		f.pack();
 		f.setVisible(true);
+	}
+
+	public static class MyKeyListener implements KeyListener {
+		public MyKeyListener(final String ownerName) { this.owner = ownerName; }
+		final String owner;
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			System.out.println(owner+": key typed");
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {
+			System.out.println(owner+": key pressed");
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			System.out.println(owner+": key released");
+		}
 	}
 
 	public static void main(String[] args) {
