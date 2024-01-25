@@ -1,19 +1,12 @@
 package sc.fiji.gui.help;
 
-import org.scijava.ui.behaviour.io.InputTriggerConfig;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -63,39 +56,11 @@ public class PlayingAroundApp {
 	public static void registerComponentHelp(final JComponent guiComponent, final Path pathToLocalTopic) {
 		guiComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H,0), "local_gui_help_key");
 		guiComponent.getActionMap().put("local_gui_help_key", new LocalFilesHelp(pathToLocalTopic));
-/*
-		guiComponent.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {}
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_F1) {
-					System.out.println("Would be now starting LOCAL help from "+pathToLocalTopic);
-				}
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {}
-		});
-*/
 	}
 
 	public static void registerComponentHelp(final JComponent guiComponent, final URL urlToRemoteTopic) {
 		guiComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H,0), "local_gui_help_key2");
 		guiComponent.getActionMap().put("local_gui_help_key2", new RemoteContentHelp(urlToRemoteTopic));
-/*
-		guiComponent.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {}
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_F1) {
-					System.out.println("Would be now starting REMOTE help from "+urlToRemoteTopic);
-				}
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {}
-		});
-*/
 	}
 
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
@@ -129,11 +94,6 @@ public class PlayingAroundApp {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("Would be now starting LOCAL help from "+pathToMyLocalTopic);
 		}
-		public boolean accept(Object sender) {
-			System.out.println("Local accept!?");
-			return true;
-			//return super.accept(sender);
-		}
 	}
 	/**
 	 * Action associated with its own help data, will show the relevant GUI help dialog.
@@ -148,11 +108,6 @@ public class PlayingAroundApp {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("Would be now starting REMOTE help from "+urlToMyRemoteTopic);
-		}
-		public boolean accept(Object sender) {
-			System.out.println("Remote accept!?");
-			return true;
-			//return super.accept(sender);
 		}
 	}
 	// ==================================================================================================================
@@ -230,21 +185,6 @@ public class PlayingAroundApp {
 				System.out.println("mouse left the app");
 			}
 		});
-
-		//f.getRootPane().setFocusable(true);
-		//f.getRootPane().grabFocus();
-
-/*
-		f.getRootPane().getInputMap().put(KeyStroke.getKeyStroke('h'),"ruewiruw");
-		f.getRootPane().getInputMap().put(KeyStroke.getKeyStroke('H'),"ruewiruw");
-		AbstractAction a = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("hhhhhhhhh "+e.getSource());
-			}
-		};
-		f.getRootPane().getActionMap().put("ruewiruw",a);
-*/
 
 		f.pack();
 		f.setVisible(true);
