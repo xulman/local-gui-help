@@ -53,12 +53,22 @@ public class PlayingAroundApp {
 	JLabel panel3;
 
 	PlayingAroundApp() throws MalformedURLException {
-		JFrame mainWindowFrame = buildAppWindow(); //and sets both panels attribs
-		//HelpManager helpManager = new HelpManager();
+		JFrame mainWindowFrame = buildAppWindow(); //and sets all GUI items attribs
+
+		//HelpManager helpManager = new HelpManager(); //no global mouse monitoring
 		HelpManager helpManager = new HelpManager(mainWindowFrame.getContentPane());
-		helpManager.registerComponentHelp(panel1, constructPathToLocalTopics(PanelControlledWorker.class,"Topic1"));
-		helpManager.registerComponentHelp(panel2, new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html"));
-		helpManager.registerComponentHelp(panel3, constructPathToLocalTopics(PanelControlledWorker.class,"Topic2"));
+
+		helpManager.registerComponentHelp(panel1,
+				constructPathToLocalTopics(PanelControlledWorker.class,"Topic1"),
+				"HELP from LOCAL FILES");
+
+		helpManager.registerComponentHelp(panel2,
+				new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html"),
+				"HELP from REMOTE URL");
+
+		helpManager.registerComponentHelp(panel3,
+				constructPathToLocalTopics(PanelControlledWorker.class,"Topic2"),
+				"ANOTHER LOCAL FILE HELP");
 	}
 
 	final Color blue = new Color(128,128,255);
