@@ -55,7 +55,7 @@ public class PlayingAroundApp {
 		JFrame mainWindowFrame = buildAppWindow(); //and sets both panels attribs
 		//HelpManager helpManager = new HelpManager();
 		HelpManager helpManager = new HelpManager(mainWindowFrame.getContentPane());
-		helpManager.registerComponentHelp(panel1, constructPathToLocalTopics(PanelControlledWorker.class,"PanelHelp"));
+		helpManager.registerComponentHelp(panel1, constructPathToLocalTopics(PanelControlledWorker.class,"Topic1"));
 		helpManager.registerComponentHelp(panel2, new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html"));
 	}
 
