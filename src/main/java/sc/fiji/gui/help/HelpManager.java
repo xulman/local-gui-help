@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class HelpManager {
+	public static int HELP_KEY1 = KeyEvent.VK_H;
+	public static int HELP_KEY2 = KeyEvent.VK_F1;
 
 	public HelpManager(final Container theMainAppWindowContentPane) {
 		//since keyboard event can arrive only to an element with focus,
@@ -82,7 +84,7 @@ public class HelpManager {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			System.out.println("key released: "+e.getKeyChar());
-			if (e.getKeyCode() == KeyEvent.VK_H) {
+			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) {
 				if (monitoredComponent != null) showItemHelp(monitoredComponent);
 				else if (itemWithMouseOver != null) showItemHelp(itemWithMouseOver);
 			}
