@@ -138,45 +138,4 @@ public class HelpManager {
 		//TODO: show it in a separate thread, non-modal
 	}
 
-
-
-
-
-
-
-
-	// ==================================================================================================================
-	// Actions:
-
-	/**
-	 * Action associated with its own help data, will show the relevant GUI help dialog.
-	 * Here, the help data is stored locally in some folder.
-	 */
-	static class LocalFilesHelp extends AbstractAction {
-		final Path pathToMyLocalTopic;
-		public LocalFilesHelp(final Path pathToLocalTopic) {
-			super();
-			this.pathToMyLocalTopic = pathToLocalTopic;
-		}
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("Would be now starting LOCAL help from "+pathToMyLocalTopic);
-		}
-	}
-
-	/**
-	 * Action associated with its own help data, will show the relevant GUI help dialog.
-	 * Here, the help data will be fetched from the given URL.
-	 */
-	static class RemoteContentHelp extends AbstractAction {
-		final URL urlToMyRemoteTopic;
-		public RemoteContentHelp(final URL pathToRemoteTopic) {
-			super();
-			this.urlToMyRemoteTopic = pathToRemoteTopic;
-		}
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("Would be now starting REMOTE help from "+urlToMyRemoteTopic);
-		}
-	}
 }
