@@ -2,17 +2,11 @@ package sc.fiji.gui.help;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import static sc.fiji.gui.help.HelpManager.constructPathToLocalTopics;
 
 public class PlayingAroundApp {
 	JComponent buildTextHtmlComponent(URL pathToText) {
@@ -53,80 +47,23 @@ public class PlayingAroundApp {
 	}
 
 	// ==================================================================================================================
-	public static void registerComponentHelp(final JComponent guiComponent, final Path pathToLocalTopic) {
-		guiComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H,0), "local_gui_help_key");
-		guiComponent.getActionMap().put("local_gui_help_key", new LocalFilesHelp(pathToLocalTopic));
-	}
-
-	public static void registerComponentHelp(final JComponent guiComponent, final URL urlToRemoteTopic) {
-		guiComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H,0), "local_gui_help_key2");
-		guiComponent.getActionMap().put("local_gui_help_key2", new RemoteContentHelp(urlToRemoteTopic));
-	}
-
-	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
-		try {
-			return Paths.get(appClass.getResource(topic+"/1.html").toURI()).getParent();
-		} catch (URISyntaxException | NullPointerException e) {
-			try {
-				System.err.println("Failed finding the local help "+appClass.getSimpleName()+"/"+topic
-						+", trying a default placeholder instead...");
-				return Paths.get(PlayingAroundApp.class.getResource("defaultDescription.html").toURI());
-				//NB: notice the name of this framework...
-				//TODO: the defaultDescription.html could show a demo how to create such local help
-			} catch (URISyntaxException | NullPointerException ex) {
-				throw new RuntimeException("Requested help ("
-						+appClass.getSimpleName()+"/"+topic+") as well as default substitute help was not found.");
-			}
-		}
-	}
-
-	/**
-	 * Action associated with its own help data, will show the relevant GUI help dialog.
-	 * Here, the help data is stored locally in some folder.
-	 */
-	static class LocalFilesHelp extends AbstractAction {
-		final Path pathToMyLocalTopic;
-		public LocalFilesHelp(final Path pathToLocalTopic) {
-			super();
-			this.pathToMyLocalTopic = pathToLocalTopic;
-		}
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("Would be now starting LOCAL help from "+pathToMyLocalTopic);
-		}
-	}
-	/**
-	 * Action associated with its own help data, will show the relevant GUI help dialog.
-	 * Here, the help data will be fetched from the given URL.
-	 */
-	static class RemoteContentHelp extends AbstractAction {
-		final URL urlToMyRemoteTopic;
-		public RemoteContentHelp(final URL pathToRemoteTopic) {
-			super();
-			this.urlToMyRemoteTopic = pathToRemoteTopic;
-		}
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("Would be now starting REMOTE help from "+urlToMyRemoteTopic);
-		}
-	}
-	// ==================================================================================================================
-
 
 	JButton panel1;
 	JButton panel2;
 
 	PlayingAroundApp() throws MalformedURLException {
-		buildAppWindow(); //and sets both panels attribs
-		registerComponentHelp(panel1, constructPathToLocalTopics(PanelControlledWorker.class,"PanelHelp"));
-		registerComponentHelp(panel2, new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html"));
+		JFrame mainWindowFrame = buildAppWindow(); //and sets both panels attribs
+		//HelpManager helpManager = new HelpManager();
+		HelpManager helpManager = new HelpManager(mainWindowFrame.getContentPane());
+		helpManager.registerComponentHelp(panel1, constructPathToLocalTopics(PanelControlledWorker.class,"PanelHelp"));
+		helpManager.registerComponentHelp(panel2, new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html"));
 	}
 
 	final Color blue = new Color(128,128,255);
 	final Color green = new Color(128,192,128);
 	final Color gray = new Color(192,192,192);
 
-	void buildAppWindow() {
+	JFrame buildAppWindow() {
 		final Panel contentPane = new Panel();
 		contentPane.setBackground(gray);
 		contentPane.setLayout(new GridBagLayout());
@@ -165,47 +102,9 @@ public class PlayingAroundApp {
 		final JFrame f = new JFrame("A Simple Demo App");
 		f.setContentPane( contentPane );
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		f.getContentPane().setFocusable(true);
-		f.getContentPane().addKeyListener(new MyKeyListener("APP window"));
-		f.getContentPane().addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {}
-			@Override
-			public void mousePressed(MouseEvent e) {}
-			@Override
-			public void mouseReleased(MouseEvent e) {}
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				System.out.println("mouse entered the app");
-				f.getContentPane().requestFocusInWindow();
-			}
-			@Override
-			public void mouseExited(MouseEvent e) {
-				System.out.println("mouse left the app");
-			}
-		});
-
 		f.pack();
 		f.setVisible(true);
-	}
-
-	public static class MyKeyListener implements KeyListener {
-		public MyKeyListener(final String ownerName) { this.owner = ownerName; }
-		final String owner;
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-			System.out.println(owner+": key typed");
-		}
-		@Override
-		public void keyPressed(KeyEvent e) {
-			System.out.println(owner+": key pressed");
-		}
-		@Override
-		public void keyReleased(KeyEvent e) {
-			System.out.println(owner+": key released");
-		}
+		return f;
 	}
 
 	public static void main(String[] args) {
