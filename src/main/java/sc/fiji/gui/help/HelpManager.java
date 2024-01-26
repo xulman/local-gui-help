@@ -1,8 +1,6 @@
 package sc.fiji.gui.help;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -11,6 +9,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HelpManager {
 	public static int HELP_KEY1 = KeyEvent.VK_H;
@@ -58,6 +58,10 @@ public class HelpManager {
 		public void mouseExited(MouseEvent e) {
 			if (itemWithMouseOver == e.getComponent()) itemWithMouseOver = null;
 			//NB: to make sure only myself is removed
+			//    (just in case somebody else managed to set this attrib already,
+			//     which could happen when mouseEntered() on that somebody was called
+			//     before mouseExited() of the actual mouse-over'ed item
+			//     (theoretically, it shouldn't happen) )
 		}
 		@Override
 		public void mouseClicked(MouseEvent e) {}
@@ -92,16 +96,16 @@ public class HelpManager {
 	}
 
 	// ==================================================================================================================
-	public void registerComponentHelp(final Component guiComponent, final Path pathToLocalTopic) {
+	public void registerComponentHelp(final Component guiComponent, final Path pathToLocalTopic, final String dialogTitle) {
 		if (doMonitorMouseOvers) guiComponent.addMouseListener(mouseOverListener);
 		guiComponent.addKeyListener(new HelpKeyMonitor(guiComponent));
-		//TODO: register the component and its "action"
+		helpDialogs.put(guiComponent, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
 	}
 
-	public void registerComponentHelp(final Component guiComponent, final URL urlToRemoteTopic) {
+	public void registerComponentHelp(final Component guiComponent, final URL urlToRemoteTopic, final String dialogTitle) {
 		if (doMonitorMouseOvers) guiComponent.addMouseListener(mouseOverListener);
 		guiComponent.addKeyListener(new HelpKeyMonitor(guiComponent));
-		//TODO: register the component and its "action"
+		helpDialogs.put(guiComponent, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
 	}
 
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
@@ -131,11 +135,15 @@ public class HelpManager {
 	 */
 	public void showItemHelp(Component guiItem) {
 		if (guiItem == null) {
-			System.out.println("would show help, but nothing is active!?");
+			//TODO: add log consumer to this class
+			System.err.println("would show help, but nothing is active!?");
 			return;
 		}
 		System.out.println("showing help for item "+guiItem);
+		helpDialogs.get(guiItem).showNonModalHelpNow();
+		//TODO: make resilient when the guiItem is by chance not found!
 		//TODO: show it in a separate thread, non-modal
 	}
 
+	private final Map<Component, HelpShower> helpDialogs = new HashMap<>(10);
 }
