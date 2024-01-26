@@ -50,6 +50,7 @@ public class PlayingAroundApp {
 
 	JButton panel1;
 	JButton panel2;
+	JLabel panel3;
 
 	PlayingAroundApp() throws MalformedURLException {
 		JFrame mainWindowFrame = buildAppWindow(); //and sets both panels attribs
@@ -57,6 +58,7 @@ public class PlayingAroundApp {
 		HelpManager helpManager = new HelpManager(mainWindowFrame.getContentPane());
 		helpManager.registerComponentHelp(panel1, constructPathToLocalTopics(PanelControlledWorker.class,"Topic1"));
 		helpManager.registerComponentHelp(panel2, new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html"));
+		helpManager.registerComponentHelp(panel3, constructPathToLocalTopics(PanelControlledWorker.class,"Topic2"));
 	}
 
 	final Color blue = new Color(128,128,255);
@@ -80,7 +82,7 @@ public class PlayingAroundApp {
 		//panel2.setBorder(BorderFactory.createEtchedBorder(green,gray));
 		panel2.setBackground(green);
 
-		JButton panel3 = new JButton("not used");
+		panel3 = new JLabel("not used");
 		panel3.setPreferredSize(new Dimension(200,50));
 		panel3.setHorizontalAlignment(JLabel.CENTER);
 		//panel3.setBorder(BorderFactory.createEtchedBorder(green,gray));
