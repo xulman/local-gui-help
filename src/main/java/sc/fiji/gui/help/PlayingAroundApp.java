@@ -9,44 +9,6 @@ import java.net.URL;
 import static sc.fiji.gui.help.HelpManager.constructPathToLocalTopics;
 
 public class PlayingAroundApp {
-	JComponent buildTextHtmlComponent(URL pathToText) {
-		JEditorPane editorPane;
-		try {
-			editorPane = new JEditorPane( pathToText );
-			editorPane.setEditable( false );
-		} catch (IOException e) {
-			System.err.println("choosing fall-back content");
-			editorPane = new JEditorPane();
-			editorPane.setText("FAILED OPENING THE CONTENT HERE.");
-		}
-		return editorPane;
-	}
-
-	JComponent buildImageOnlyComponent(URL pathToImage) {
-		ImageIcon icon = new ImageIcon(pathToImage);
-		return new JLabel(icon);
-	}
-
-	JFrame buildPanel() {
-		JFrame f = new JFrame("PLAYING AROUND");
-
-		try {
-			//f.add( buildImageOnlyComponent( PlayingAroundApp.class.getResource("someImg.png") ) );
-			//f.add( buildImageOnlyComponent( new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.png") ) );
-			//f.add( buildTextHtmlComponent( new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html") ) );
-			buildTextHtmlComponent( new URL("https://www.fi.muni.cz/~xulman/files/secret_folder/removeMe.html") );
-			f.add( buildTextHtmlComponent( PlayingAroundApp.class.getResource("someImg.txt") ) );
-		} catch (MalformedURLException e) {
-			System.out.println("Ain't adding an image panel 'cause URL is supposedly wrong...");
-		}
-
-		f.pack();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setVisible(true);
-		return f;
-	}
-
-	// ==================================================================================================================
 
 	JButton panel1;
 	JButton panel2;
@@ -70,10 +32,6 @@ public class PlayingAroundApp {
 				constructPathToLocalTopics(PanelControlledWorker.class,"Topic2"),
 				"ANOTHER LOCAL FILE HELP");
 	}
-
-	final Color blue = new Color(128,128,255);
-	final Color green = new Color(128,192,128);
-	final Color gray = new Color(192,192,192);
 
 	JFrame buildAppWindow() {
 		final Panel contentPane = new Panel();
@@ -118,6 +76,11 @@ public class PlayingAroundApp {
 		f.setVisible(true);
 		return f;
 	}
+
+	final Color blue = new Color(128,128,255);
+	final Color green = new Color(128,192,128);
+	final Color gray = new Color(192,192,192);
+
 
 	public static void main(String[] args) {
 		try {
