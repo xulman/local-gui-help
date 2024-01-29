@@ -72,6 +72,7 @@
 		<package-name>local-gui-help</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Vladimir Ulman</license.copyrightOwners>
+		<license.excludes>**/resources/**</license.excludes>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
