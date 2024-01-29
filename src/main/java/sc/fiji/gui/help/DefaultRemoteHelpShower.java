@@ -19,6 +19,7 @@ public class DefaultRemoteHelpShower implements HelpShower {
 		final Panel contentPane = new Panel();
 		contentPane.setLayout(new GridBagLayout());
 
+		//TODO: make these a common static attrib, part of the iface?
 		final Dimension minSize = new Dimension(300, 300);
 		final Dimension preferredSize = new Dimension(600, 600);
 

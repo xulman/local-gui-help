@@ -59,6 +59,7 @@ public class DefaultLocalHelpShower implements HelpShower {
 	}
 
 	void fillPage(final JLabel imagePane, final JEditorPane textPane) {
+		//TODO can fail reading the png, provide placeholder then.. like missed file and the path to it
 		imagePane.setIcon(new ImageIcon(pathToLocalHelp.resolve(currentPage + ".png").toString()));
 		textPane.setText(readCompleteFile(pathToLocalHelp.resolve(currentPage + ".html")));
 	}
