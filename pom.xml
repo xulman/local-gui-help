@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>36.0.0</version>
+		<version>37.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -14,12 +14,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>Local Help for GUIs</name>
-	<description>POM STOLEN FROM HERE: BigDataViewer core classes with minimal dependencies.</description>
-	<url>https://github.com/bigdataviewer/bigdataviewer-core</url>
-	<inceptionYear>2012</inceptionYear>
+	<description>A framework for Java apps that attaches and shows simple help dialogs/wizzards to developer-chosen GUI controls.</description>
+	<url>https://github.com/xulman/local-gui-help</url>
+	<inceptionYear>2024</inceptionYear>
 	<organization>
-		<name>BigDataViewer</name>
-		<url>https://imagej.net/plugins/bdv</url>
+		<name>Fiji</name>
+		<url>TBA</url>
 	</organization>
 	<licenses>
 		<license>
@@ -31,9 +31,9 @@
 
 	<developers>
 		<developer>
-			<id>tpietzsch</id>
-			<name>Tobias Pietzsch</name>
-			<url>https://imagej.net/people/tpietzsch</url>
+			<id>xulman</id>
+			<name>Vladimir Ulman</name>
+			<url>https://imagej.net/people/xulman</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -44,96 +44,35 @@
 				<role>maintainer</role>
 			</roles>
 		</developer>
-		<developer>
-			<id>ctrueden</id>
-			<name>Curtis Rueden</name>
-			<url>https://imagej.net/people/ctrueden</url>
-			<roles>
-				<role>maintainer</role>
-			</roles>
-		</developer>
 	</developers>
-	<contributors>
-		<contributor>
-			<name>John Bogovic</name>
-			<url>https://imagej.net/people/bogovicj</url>
-			<properties><id>bogovicj</id></properties>
-		</contributor>
-		<contributor>
-			<name>HongKee Moon</name>
-			<url>https://imagej.net/people/hkmoon</url>
-			<properties><id>hkmoon</id></properties>
-		</contributor>
-		<contributor>
-			<name>Stephan Preibisch</name>
-			<url>https://imagej.net/people/StephanPreibisch</url>
-			<properties><id>StephanPreibisch</id></properties>
-		</contributor>
-		<contributor>
-			<name>Stephan Saalfeld</name>
-			<url>https://imagej.net/people/axtimwalde</url>
-			<properties><id>axtimwalde</id></properties>
-		</contributor>
-		<contributor>
-			<name>Johannes Schindelin</name>
-			<url>https://imagej.net/people/dscho</url>
-			<properties><id>dscho</id></properties>
-		</contributor>
-		<contributor>
-			<name>Jean-Yves Tinevez</name>
-			<url>https://imagej.net/people/tinevez</url>
-			<properties><id>tinevez</id></properties>
-		</contributor>
-		<contributor>
-			<name>Igor Pisarev</name>
-			<properties><id>igorpisarev</id></properties>
-		</contributor>
-		<contributor>
-			<name>Neil Thistlethwaite</name>
-			<properties><id>nthistle</id></properties>
-		</contributor>
-		<contributor>
-			<name>Philipp Hanslovsky</name>
-			<url>https://imagej.net/people/hanslovsky</url>
-			<properties><id>hanslovsky</id></properties>
-		</contributor>
-		<contributor>
-			<name>Tim-Oliver Buchholz</name>
-			<url>https://imagej.net/people/tibuch</url>
-			<properties><id>tibuch</id></properties>
-		</contributor>
-		<contributor>
-			<name>Christian Tischer</name>
-			<properties><id>tischi</id></properties>
-		</contributor>
-	</contributors>
 
 	<mailingLists>
 		<mailingList>
 			<name>Image.sc Forum</name>
-			<archive>https://forum.image.sc/tag/bigdataviewer</archive>
+			<archive>https://forum.image.sc/</archive>
 		</mailingList>
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:https://github.com/bigdataviewer/bigdataviewer-core</connection>
-		<developerConnection>scm:git:git@github.com:bigdataviewer/bigdataviewer-core</developerConnection>
+		<connection>scm:git:https://github.com/xulman/local-gui-help</connection>
+		<developerConnection>scm:git:git@github.com:xulman/local-gui-help</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/bigdataviewer/bigdataviewer-core</url>
+		<url>https://github.com/xulman/local-gui-help</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/bigdataviewer/bigdataviewer-core/issues</url>
+		<url>https://github.com/xulman/local-gui-help/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>GitHub Actions</system>
-		<url>https://github.com/bigdataviewer/bigdataviewer-core/actions</url>
+		<url>https://github.com/xulman/local-gui-help/actions</url>
 	</ciManagement>
 
 	<properties>
 		<package-name>local-gui-help</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>BigDataViewer developers.</license.copyrightOwners>
+		<license.copyrightOwners>Vladimir Ulman</license.copyrightOwners>
+		<license.excludes>**/resources/**</license.excludes>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -145,27 +84,4 @@
 			<url>https://maven.scijava.org/content/groups/public</url>
 		</repository>
 	</repositories>
-
-	<dependencies>
-		<!-- SciJava dependencies -->
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>scijava-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>scijava-listeners</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>ui-behaviour</artifactId>
-		</dependency>
-
-		<!-- Test dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>
