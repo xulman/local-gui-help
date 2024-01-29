@@ -108,6 +108,12 @@ public class HelpManager {
 		helpDialogs.put(guiComponent, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
 	}
 
+	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
+		if (doMonitorMouseOvers) guiComponent.addMouseListener(mouseOverListener);
+		guiComponent.addKeyListener(new HelpKeyMonitor(guiComponent));
+		helpDialogs.put(guiComponent, ownHelpDialog);
+	}
+
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
 		try {
 			return Paths.get(appClass.getResource(topic+"/1.html").toURI()).getParent();
