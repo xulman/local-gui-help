@@ -45,6 +45,11 @@
 			</roles>
 		</developer>
 	</developers>
+	<contributors>
+		<contributor>
+			<name>none yet </name>
+		</contributor>
+	</contributors>
 
 	<mailingLists>
 		<mailingList>
@@ -69,7 +74,7 @@
 	</ciManagement>
 
 	<properties>
-		<package-name>local-gui-help</package-name>
+		<package-name>local_gui_help</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Vladimir Ulman</license.copyrightOwners>
 		<license.excludes>**/resources/**</license.excludes>
