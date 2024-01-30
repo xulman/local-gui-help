@@ -51,6 +51,8 @@ public class DefaultRemoteHelpShower implements HelpShower {
 		final Dimension minSize = new Dimension(300, 300);
 		final Dimension preferredSize = new Dimension(600, 600);
 
+		//TODO: make the link click-able
+		final JLabel urlHeader = new JLabel("Showing content from: "+urlToRemoteHelp.toString());
 		final JEditorPane textPane = new JEditorPane();
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
@@ -66,8 +68,11 @@ public class DefaultRemoteHelpShower implements HelpShower {
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 0;
-		c.gridy = 0;
+		c.gridy = 1;
 		contentPane.add(textPane, c);
+		c.gridy = 0;
+		c.insets = new Insets(5,5,10,5);
+		contentPane.add(urlHeader, c);
 
 		JFrame f = new JFrame(dialogTitle);
 		f.setContentPane(contentPane);
