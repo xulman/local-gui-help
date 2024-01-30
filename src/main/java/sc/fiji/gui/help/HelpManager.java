@@ -33,6 +33,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -191,6 +192,25 @@ public class HelpManager {
 			} catch (URISyntaxException | NullPointerException ex) {
 				throw new RuntimeException("Requested help ("
 						+appClass.getSimpleName()+"/"+topic+") as well as default substitute help was not found.");
+			}
+		}
+	}
+
+	/**
+	 * An aider to construct URL objects without the hassle of dealing with the potential {@link MalformedURLException}.
+	 * If invalid input is given, the methods return URL pointing at https://scijava.org/.
+	 *
+	 * @param urlAsPlainText URL string to be wrapped into a proper {@link URL} object.
+	 * @return URL object wrapped around the textual URL.
+	 */
+	public static URL constructURL(final String urlAsPlainText) {
+		try {
+			return new URL(urlAsPlainText);
+		} catch (MalformedURLException e) {
+			try {
+				return new URL("https://scijava.org/");
+			} catch (MalformedURLException ex) {
+				throw new RuntimeException("Total failure: Couldn't construct URL obj around simple valid URL string.");
 			}
 		}
 	}
