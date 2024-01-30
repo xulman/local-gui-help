@@ -57,6 +57,7 @@ public class HelpManager {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				theMainAppWindowContentPane.requestFocusInWindow();
+				itemWithMouseOver = theMainAppWindowContentPane;
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {}
@@ -65,7 +66,20 @@ public class HelpManager {
 			@Override
 			public void mouseReleased(MouseEvent e) {}
 			@Override
-			public void mouseExited(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {
+				if (itemWithMouseOver == theMainAppWindowContentPane) {
+					final int mouseX = e.getX();
+					final int mouseY = e.getY();
+					//is mouse leaving this (container) component through its outside boundary?
+					//(in contrast to "leaving into" another (child) component that is inside/over
+					// this (container) component)
+					if (mouseX < 0 || mouseX >= theMainAppWindowContentPane.getWidth()
+							|| mouseY < 0 || mouseY >= theMainAppWindowContentPane.getHeight()) {
+						//left outside
+						itemWithMouseOver = null;
+					}
+				}
+			}
 		});
 	}
 
