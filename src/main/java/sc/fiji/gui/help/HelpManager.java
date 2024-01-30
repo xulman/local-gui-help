@@ -33,6 +33,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -45,18 +46,25 @@ public class HelpManager {
 	public static int HELP_KEY2 = KeyEvent.VK_F1;
 
 	public HelpManager(final Container theMainAppWindowContentPane) {
+		this.theMainAppWindowContentPane = theMainAppWindowContentPane;
+
 		//since keyboard event can arrive only to an element with focus,
 		//we have to make sure the pane can be focused (can receive keyboard events)
 		theMainAppWindowContentPane.setFocusable(true);
 		theMainAppWindowContentPane.addKeyListener(new HelpKeyMonitor());
 
-		//focus this pane whenever mouse arrives over the app window (the main content pane),
+		//show no help when help key is pressed with mouse over the monitored main window,
+		//it can be overridden later from the client code
+		helpDialogs.put(theMainAppWindowContentPane, noHelpShower);
+
+		//focuses this pane whenever mouse arrives over the app window (the main content pane),
 		//which makes it see all keyboard events until the focus is changed (e.g. with mouse click or tab)
 		doMonitorMouseOvers = true;
 		theMainAppWindowContentPane.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				theMainAppWindowContentPane.requestFocusInWindow();
+				itemWithMouseOver = theMainAppWindowContentPane;
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {}
@@ -65,14 +73,29 @@ public class HelpManager {
 			@Override
 			public void mouseReleased(MouseEvent e) {}
 			@Override
-			public void mouseExited(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {
+				if (itemWithMouseOver == theMainAppWindowContentPane) {
+					final int mouseX = e.getX();
+					final int mouseY = e.getY();
+					//is mouse leaving this (container) component through its outside boundary?
+					//(in contrast to "leaving into" another (child) component that is inside/over
+					// this (container) component)
+					if (mouseX < 0 || mouseX >= theMainAppWindowContentPane.getWidth()
+							|| mouseY < 0 || mouseY >= theMainAppWindowContentPane.getHeight()) {
+						//left outside
+						itemWithMouseOver = null;
+					}
+				}
+			}
 		});
 	}
 
 	public HelpManager() {
 		doMonitorMouseOvers = false;
+		theMainAppWindowContentPane = null;
 	}
 
+	private final Component theMainAppWindowContentPane;
 	private Component itemWithMouseOver = null;
 	private final MouseOverMonitor mouseOverListener = new MouseOverMonitor();
 	private final boolean doMonitorMouseOvers;
@@ -142,6 +165,20 @@ public class HelpManager {
 		helpDialogs.put(guiComponent, ownHelpDialog);
 	}
 
+	public void registerComponentHelp(final Path pathToLocalTopic, final String dialogTitle) {
+		if (theMainAppWindowContentPane != null)
+			helpDialogs.put(theMainAppWindowContentPane, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
+	}
+
+	public void registerComponentHelp(final URL urlToRemoteTopic, final String dialogTitle) {
+		if (theMainAppWindowContentPane != null)
+			helpDialogs.put(theMainAppWindowContentPane, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
+	}
+
+	public void registerComponentHelp(final HelpShower ownHelpDialog) {
+		if (theMainAppWindowContentPane != null) helpDialogs.put(theMainAppWindowContentPane, ownHelpDialog);
+	}
+
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
 		try {
 			return Paths.get(appClass.getResource(topic+"/1.html").toURI()).getParent();
@@ -159,10 +196,29 @@ public class HelpManager {
 		}
 	}
 
+	/**
+	 * An aider to construct URL objects without the hassle of dealing with the potential {@link MalformedURLException}.
+	 * If invalid input is given, the methods return URL pointing at https://scijava.org/.
+	 *
+	 * @param urlAsPlainText URL string to be wrapped into a proper {@link URL} object.
+	 * @return URL object wrapped around the textual URL.
+	 */
+	public static URL constructURL(final String urlAsPlainText) {
+		try {
+			return new URL(urlAsPlainText);
+		} catch (MalformedURLException e) {
+			try {
+				return new URL("https://scijava.org/");
+			} catch (MalformedURLException ex) {
+				throw new RuntimeException("Total failure: Couldn't construct URL obj around simple valid URL string.");
+			}
+		}
+	}
+
 	// ==================================================================================================================
 	/**
 	 * Starts the help dialog for the given component if that component has been previously registered via
-	 * {@link HelpManager#registerComponentHelp(Component, Path)} or {@link HelpManager#registerComponentHelp(Component, URL)}.
+	 * the family of registering methods, such as {@link HelpManager#registerComponentHelp(Component, Path, String)}.
 	 * If null is given, the method silently quits without showing anything.
 	 *
 	 * @param guiItem Component of which the help should be displayed.
@@ -180,4 +236,5 @@ public class HelpManager {
 	}
 
 	private final Map<Component, HelpShower> helpDialogs = new HashMap<>(10);
+	private static final HelpShower noHelpShower = () -> { /* does nothing intentionally */ };
 }
