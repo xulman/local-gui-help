@@ -1,0 +1,112 @@
+package sc.fiji.gui.help;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowStateListener;
+
+/**
+ void HM.obtain().getKeyboardAction()
+ -- use for the binding+actions, triggers this manager
+ -- should be bound to "the usual place in the app", could be bound in multiple places
+ -- keyboard focus is (obviously) not altered
+
+ void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
+ -- add mouse listeners to inform if/where a mouse is
+ -- important when this manager is triggered
+
+ MouseListener HM.obtain().addFocusStealer(forThisMainFrame)
+ -- deploys the steal-keyboard-focus-on-mouse-enter routine, returns handle on this routine
+
+ (this MouseListener must be my special extension that remembers on which component
+ it was registered and what was the isFocusable() state before the deployment)
+
+ void HM.obtain().removeFocusStealer(MouseListener)
+ -- removes/disables the keyboard-focus-stealer from the main frame
+ */
+public class HelpManagerSingleton {
+	private HelpManagerSingleton() {}
+
+	private static HelpManagerSingleton instance = null;
+
+	public static synchronized HelpManagerSingleton obtain() {
+		if (instance == null) {
+			instance = new HelpManagerSingleton();
+		}
+		return instance;
+	}
+
+	// ==================================================================================================================
+	public static int HELP_KEY1 = KeyEvent.VK_H;
+	public static int HELP_KEY2 = KeyEvent.VK_F1;
+
+	public KeyListener getKeyboardListener() {
+		return singletonKeyListener;
+	}
+
+	private final KeyListener singletonKeyListener = new KeyListener() {
+		@Override
+		public void keyTyped(KeyEvent e) {}
+		@Override
+		public void keyPressed(KeyEvent e) {}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) {
+				if (itemWithMouseOver != null) {
+					System.out.println("Would be now printing help for component: " + itemWithMouseOver);
+					//showItemHelp(itemWithMouseOver);
+				} else {
+					System.out.println("Printing help wanted, but mouse not over any registered component.");
+				}
+			}
+		}
+	};
+
+	private Component itemWithMouseOver = null;
+
+	// ==================================================================================================================
+	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
+		guiComponent.addMouseListener( new MouseOverMonitor(guiComponent) );
+		//helpDialogs.put(guiComponent, ownHelpDialog);
+	}
+
+	class MouseOverMonitor implements MouseListener {
+		public MouseOverMonitor(final Component monitoredComponent) {
+			this.monitoredComponent = monitoredComponent;
+		}
+		final Component monitoredComponent;
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			itemWithMouseOver = e.getComponent();
+		}
+		@Override
+		public void mouseExited(MouseEvent e) {
+			//NB: to make sure only myself is removed
+			//    (just in case somebody else managed to set this attrib already,
+			//     which could happen when mouseEntered() on that somebody was called
+			//     before mouseExited() of the actual mouse-over'ed item
+			//     (theoretically, it shouldn't happen) )
+			if (itemWithMouseOver == e.getComponent()) {
+				final int mouseX = e.getX();
+				final int mouseY = e.getY();
+				//is mouse leaving this (container) component through its outside boundary?
+				//(in contrast to "leaving into" another (child) component that is inside/over
+				// this (container) component)
+				if (mouseX < 0 || mouseX >= monitoredComponent.getWidth()
+						|| mouseY < 0 || mouseY >= monitoredComponent.getHeight()) {
+					//left outside
+					itemWithMouseOver = null;
+				}
+			}
+		}
+		@Override
+		public void mouseClicked(MouseEvent e) {}
+		@Override
+		public void mousePressed(MouseEvent e) {}
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+	}
+}
