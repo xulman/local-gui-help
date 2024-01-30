@@ -45,6 +45,8 @@ public class HelpManager {
 	public static int HELP_KEY2 = KeyEvent.VK_F1;
 
 	public HelpManager(final Container theMainAppWindowContentPane) {
+		this.theMainAppWindowContentPane = theMainAppWindowContentPane;
+
 		//since keyboard event can arrive only to an element with focus,
 		//we have to make sure the pane can be focused (can receive keyboard events)
 		theMainAppWindowContentPane.setFocusable(true);
@@ -89,8 +91,10 @@ public class HelpManager {
 
 	public HelpManager() {
 		doMonitorMouseOvers = false;
+		theMainAppWindowContentPane = null;
 	}
 
+	private final Component theMainAppWindowContentPane;
 	private Component itemWithMouseOver = null;
 	private final MouseOverMonitor mouseOverListener = new MouseOverMonitor();
 	private final boolean doMonitorMouseOvers;
@@ -160,6 +164,20 @@ public class HelpManager {
 		helpDialogs.put(guiComponent, ownHelpDialog);
 	}
 
+	public void registerComponentHelp(final Path pathToLocalTopic, final String dialogTitle) {
+		if (theMainAppWindowContentPane != null)
+			helpDialogs.put(theMainAppWindowContentPane, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
+	}
+
+	public void registerComponentHelp(final URL urlToRemoteTopic, final String dialogTitle) {
+		if (theMainAppWindowContentPane != null)
+			helpDialogs.put(theMainAppWindowContentPane, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
+	}
+
+	public void registerComponentHelp(final HelpShower ownHelpDialog) {
+		if (theMainAppWindowContentPane != null) helpDialogs.put(theMainAppWindowContentPane, ownHelpDialog);
+	}
+
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
 		try {
 			return Paths.get(appClass.getResource(topic+"/1.html").toURI()).getParent();
@@ -180,7 +198,7 @@ public class HelpManager {
 	// ==================================================================================================================
 	/**
 	 * Starts the help dialog for the given component if that component has been previously registered via
-	 * {@link HelpManager#registerComponentHelp(Component, Path)} or {@link HelpManager#registerComponentHelp(Component, URL)}.
+	 * the family of registering methods, such as {@link HelpManager#registerComponentHelp(Component, Path, String)}.
 	 * If null is given, the method silently quits without showing anything.
 	 *
 	 * @param guiItem Component of which the help should be displayed.
