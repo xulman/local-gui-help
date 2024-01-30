@@ -50,7 +50,11 @@ public class HelpManager {
 		theMainAppWindowContentPane.setFocusable(true);
 		theMainAppWindowContentPane.addKeyListener(new HelpKeyMonitor());
 
-		//focus this pane whenever mouse arrives over the app window (the main content pane),
+		//show no help when help key is pressed with mouse over the monitored main window,
+		//it can be overridden later from the client code
+		helpDialogs.put(theMainAppWindowContentPane, noHelpShower);
+
+		//focuses this pane whenever mouse arrives over the app window (the main content pane),
 		//which makes it see all keyboard events until the focus is changed (e.g. with mouse click or tab)
 		doMonitorMouseOvers = true;
 		theMainAppWindowContentPane.addMouseListener(new MouseListener() {
@@ -194,4 +198,5 @@ public class HelpManager {
 	}
 
 	private final Map<Component, HelpShower> helpDialogs = new HashMap<>(10);
+	private static final HelpShower noHelpShower = () -> { /* does nothing intentionally */ };
 }
