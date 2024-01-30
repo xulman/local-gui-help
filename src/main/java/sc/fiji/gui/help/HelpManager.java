@@ -138,7 +138,8 @@ public class HelpManager {
 		public void keyPressed(KeyEvent e) {}
 		@Override
 		public void keyReleased(KeyEvent e) {
-			System.out.println("key released: "+e.getKeyChar());
+			//TODO: this goes into the debug branch
+			//System.out.println("key released: "+e.getKeyChar());
 			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) {
 				if (monitoredComponent != null) showItemHelp(monitoredComponent);
 				else if (itemWithMouseOver != null) showItemHelp(itemWithMouseOver);
@@ -226,10 +227,12 @@ public class HelpManager {
 	public void showItemHelp(Component guiItem) {
 		if (guiItem == null) {
 			//TODO: add log consumer to this class
-			System.err.println("would show help, but nothing is active!?");
+			//TODO: this goes into the debug branch
+			//System.err.println("would show help, but nothing is active!?");
 			return;
 		}
-		System.out.println("showing help for item "+guiItem);
+		//TODO: this goes into the debug branch
+		//System.out.println("showing help for item "+guiItem);
 		helpDialogs.get(guiItem).showNonModalHelpNow();
 		//TODO: make resilient when the guiItem is by chance not found!
 		//TODO: show it in a separate thread, non-modal
