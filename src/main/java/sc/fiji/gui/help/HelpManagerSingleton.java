@@ -80,6 +80,8 @@ public class HelpManagerSingleton {
 		//helpDialogs.put(guiComponent, ownHelpDialog);
 	}
 
+	//TODO: if e(vent).getComponent() is used well, the 'monitoredComponent' private attrib is useless,
+	//      and then we would be good with just one instance of this class....
 	class MouseOverMonitor implements MouseListener {
 		public MouseOverMonitor(final Component monitoredComponent) {
 			this.monitoredComponent = monitoredComponent;
@@ -88,7 +90,7 @@ public class HelpManagerSingleton {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			itemWithMouseOver = e.getComponent();
+			itemWithMouseOver = e.getComponent(); //NB: should be the same as 'monitoredComponent'
 		}
 		@Override
 		public void mouseExited(MouseEvent e) {
@@ -97,7 +99,7 @@ public class HelpManagerSingleton {
 			//     which could happen when mouseEntered() on that somebody was called
 			//     before mouseExited() of the actual mouse-over'ed item
 			//     (theoretically, it shouldn't happen) )
-			if (itemWithMouseOver == e.getComponent()) {
+			if (itemWithMouseOver == e.getComponent()) { //NB: should be the same as 'monitoredComponent'
 				//is mouse leaving this (container) component through its outside boundary?
 				//(in contrast to "leaving into" another (child) component that is inside/over
 				// this (container) component)
