@@ -90,14 +90,11 @@ public class HelpManagerSingleton {
 			//     before mouseExited() of the actual mouse-over'ed item
 			//     (theoretically, it shouldn't happen) )
 			if (itemWithMouseOver == e.getComponent()) {
-				final int mouseX = e.getX();
-				final int mouseY = e.getY();
 				//is mouse leaving this (container) component through its outside boundary?
 				//(in contrast to "leaving into" another (child) component that is inside/over
 				// this (container) component)
-				if (mouseX < 0 || mouseX >= monitoredComponent.getWidth()
-						|| mouseY < 0 || mouseY >= monitoredComponent.getHeight()) {
-					//left outside
+				if (!isCurrentMousePosOverComponent(monitoredComponent)) {
+					//left towards outside
 					itemWithMouseOver = null;
 				}
 			}
@@ -108,5 +105,12 @@ public class HelpManagerSingleton {
 		public void mousePressed(MouseEvent e) {}
 		@Override
 		public void mouseReleased(MouseEvent e) {}
+	}
+
+	private boolean isCurrentMousePosOverComponent(final Component component) {
+		final Point p = MouseInfo.getPointerInfo().getLocation();
+		final Point c = component.getLocationOnScreen();
+		p.translate( -c.x, -c.y ); //NB: the same as ".sub(component.corner)"
+		return !(p.x < 0 || p.y < 0 || p.x >= component.getWidth() || p.y >= component.getHeight());
 	}
 }
