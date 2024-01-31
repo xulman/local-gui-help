@@ -65,25 +65,51 @@ public class DefaultLocalHelpShower implements HelpShower {
 		textPane.setPreferredSize(preferredSizeTxt);
 
 		//TODO: add buttons!
+		final JButton prevB = new JButton("Previous");
+		final JButton nextB = new JButton("Next");
+		final JButton closeB = new JButton("Got it, close");
 
 		currentPage = 1;
 		fillPage(imagePane, textPane);
+		//
+		prevB.addActionListener((l) -> {
+					if (currentPage > 1) {
+						--currentPage;
+						fillPage(imagePane, textPane);
+					}
+				});
+		nextB.addActionListener((l) -> {
+				++currentPage;
+				fillPage(imagePane, textPane);
+		});
 
 		final GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 3;
 		c.gridx = 0;
 		c.gridy = 0;
 		contentPane.add(imagePane, c);
 		c.gridy = 1;
 		contentPane.add(textPane, c);
+
 		//TODO: add buttons!
+		c.gridwidth = 1;
+		c.weightx = 0.33;
+		c.gridy = 2;
+		contentPane.add(prevB, c);
+		c.gridx = 1;
+		contentPane.add(nextB, c);
+		c.gridx = 2;
+		contentPane.add(closeB, c);
 
 		JFrame f = new JFrame(dialogTitle);
 		f.setContentPane(contentPane);
 		f.pack();
 		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		f.setVisible(true);
+
+		closeB.addActionListener((l) -> f.setVisible(false));
 	}
 
 	void fillPage(final JLabel imagePane, final JEditorPane textPane) {

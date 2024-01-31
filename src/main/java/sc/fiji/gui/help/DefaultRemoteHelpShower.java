@@ -74,6 +74,8 @@ public class DefaultRemoteHelpShower implements HelpShower {
 		c.insets = new Insets(5,5,10,5);
 		contentPane.add(urlHeader, c);
 
+		//TODO: add close button! (to make it look similar to the sibbling help dialog)
+
 		JFrame f = new JFrame(dialogTitle);
 		f.setContentPane(contentPane);
 		f.pack();
