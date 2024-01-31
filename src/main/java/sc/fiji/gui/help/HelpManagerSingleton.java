@@ -42,8 +42,12 @@ public class HelpManagerSingleton {
 	public static int HELP_KEY1 = KeyEvent.VK_H;
 	public static int HELP_KEY2 = KeyEvent.VK_F1;
 
+	//TODO: getKeyboardListener for the given list of keys... Set<int> keys
 	public KeyListener getKeyboardListener() {
 		return singletonKeyListener;
+	}
+	public Runnable getKeyboardAction() {
+		return this::processHelpKey;
 	}
 
 	private final KeyListener singletonKeyListener = new KeyListener() {
@@ -53,16 +57,20 @@ public class HelpManagerSingleton {
 		public void keyPressed(KeyEvent e) {}
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) {
-				if (itemWithMouseOver != null) {
-					System.out.println("Would be now printing help for component: " + itemWithMouseOver);
-					//showItemHelp(itemWithMouseOver);
-				} else {
-					System.out.println("Printing help wanted, but mouse not over any registered component.");
-				}
-			}
+			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) processHelpKey();
 		}
 	};
+
+	private void processHelpKey() {
+		if (itemWithMouseOver != null) {
+			if (isCurrentMousePosOverComponent(itemWithMouseOver)) {
+				System.out.println("Would be now printing help for component: " + itemWithMouseOver.getClass().getSimpleName());
+				//showItemHelp(itemWithMouseOver);
+			} else {
+				itemWithMouseOver = null;
+			}
+		}
+	}
 
 	private Component itemWithMouseOver = null;
 
