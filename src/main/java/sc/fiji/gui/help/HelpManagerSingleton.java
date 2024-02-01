@@ -149,6 +149,25 @@ public class HelpManagerSingleton {
 		}
 	}
 
+	// ==================================================================================================================
+	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
+		addComponent(guiComponent, ownHelpDialog);
+	}
+
+	public void registerComponentHelp(final Component guiComponent, final Path pathToLocalTopic, final String dialogTitle) {
+		registerComponentHelp(guiComponent, pathToLocalTopic, dialogTitle, 0);
+	}
+
+	public void registerComponentHelp(final Component guiComponent, final Path pathToLocalTopic,
+	                                  final String dialogTitle, final int startOnThisPageNumber) {
+		//TODO: add the first start page number into the LocalHelpShower
+		addComponent(guiComponent, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
+	}
+
+	public void registerComponentHelp(final Component guiComponent, final URL urlToRemoteTopic, final String dialogTitle) {
+		addComponent(guiComponent, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
+	}
+
 
 	/**
 	 * An aider to obtain an absolute, local filesystem path to the resources folder of the provided class,
