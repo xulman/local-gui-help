@@ -25,14 +25,14 @@ import java.util.Set;
  -- registers the component into the _sorted_ list of "help-enabled components"
  -- when the manager is triggered, it attempts to find _the first_ mouse-over'ed component from the list
  */
-public class HelpManagerSingleton {
-	private HelpManagerSingleton() {}
+public class HelpManager {
+	private HelpManager() {}
 
-	private static HelpManagerSingleton instance = null;
+	private static HelpManager instance = null;
 
-	public static synchronized HelpManagerSingleton obtain() {
+	public static synchronized HelpManager obtain() {
 		if (instance == null) {
-			instance = new HelpManagerSingleton();
+			instance = new HelpManager();
 		}
 		return instance;
 	}

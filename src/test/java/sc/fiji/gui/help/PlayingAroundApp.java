@@ -30,7 +30,6 @@ package sc.fiji.gui.help;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -46,7 +45,7 @@ public class PlayingAroundApp {
 		JFrame mainWindowFrame = buildAppWindow(); //and sets all GUI items attribs
 
 		//HelpManager helpManager = new HelpManager(); //no global mouse monitoring
-		HelpManager helpManager = new HelpManager(mainWindowFrame.getContentPane());
+		HelpManager helpManager = HelpManager.obtain();
 
 		helpManager.registerComponentHelp(panel1,
 				constructPathToLocalTopics(PanelControlledWorker.class,"Topic1"),
