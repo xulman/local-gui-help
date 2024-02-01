@@ -63,7 +63,7 @@ public class HelpManager {
 	}
 
 	// ==================================================================================================================
-	class ComponentWithHelp {
+	private class ComponentWithHelp {
 		final Component component;
 		final HelpShower helpDialog;
 
@@ -84,7 +84,7 @@ public class HelpManager {
 	 * @param guiItem Component of which the help should be displayed.
 	 * @return true when help dialog for the input component has been registered previously and was thus shown.
 	 */
-	public boolean showItemHelp(Component guiItem) {
+	public boolean showHelpNow(Component guiItem) {
 		if (guiItem == null) return false;
 		for (ComponentWithHelp item : helpDialogs) {
 			if (guiItem == item.component) {
@@ -139,14 +139,14 @@ public class HelpManager {
 	}
 
 	/**
-	 * Unregisters the given component together with its local help dialog.
+	 * Unregisters the given guiComponent together with its local help dialog.
 	 * It returns the status of the {@link List::remove()} operation.
-	 * @param component The component that shall no longer provide a local help.
-	 * @return False if the given component was null or not present in the list, else True.
+	 * @param guiComponent The guiComponent that shall no longer provide a local help.
+	 * @return False if the given guiComponent was null or not present in the list, else True.
 	 */
-	public boolean unregisterComponentHelp(final Component component) {
+	public boolean unregisterComponentHelp(final Component guiComponent) {
 		try {
-			return helpDialogs.remove(component);
+			return helpDialogs.remove(guiComponent);
 		} catch (RuntimeException e) {
 			return false;
 		}
