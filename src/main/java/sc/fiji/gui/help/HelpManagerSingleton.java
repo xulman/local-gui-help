@@ -3,8 +3,6 @@ package sc.fiji.gui.help;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowStateListener;
 
 /**
@@ -14,7 +12,6 @@ import java.awt.event.WindowStateListener;
  -- keyboard focus is (obviously) not altered
 
  void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
- -- add mouse listeners to inform if/where a mouse is
  -- important when this manager is triggered
  */
 public class HelpManagerSingleton {
@@ -67,45 +64,14 @@ public class HelpManagerSingleton {
 
 	// ==================================================================================================================
 	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
-		guiComponent.addMouseListener( new MouseOverMonitor(guiComponent) );
 		//helpDialogs.put(guiComponent, ownHelpDialog);
 	}
 
-	//TODO: if e(vent).getComponent() is used well, the 'monitoredComponent' private attrib is useless,
-	//      and then we would be good with just one instance of this class....
-	class MouseOverMonitor implements MouseListener {
-		public MouseOverMonitor(final Component monitoredComponent) {
-			this.monitoredComponent = monitoredComponent;
 		}
-		final Component monitoredComponent;
 
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			itemWithMouseOver = e.getComponent(); //NB: should be the same as 'monitoredComponent'
 		}
-		@Override
-		public void mouseExited(MouseEvent e) {
-			//NB: to make sure only myself is removed
-			//    (just in case somebody else managed to set this attrib already,
-			//     which could happen when mouseEntered() on that somebody was called
-			//     before mouseExited() of the actual mouse-over'ed item
-			//     (theoretically, it shouldn't happen) )
-			if (itemWithMouseOver == e.getComponent()) { //NB: should be the same as 'monitoredComponent'
-				//is mouse leaving this (container) component through its outside boundary?
-				//(in contrast to "leaving into" another (child) component that is inside/over
-				// this (container) component)
-				if (!isCurrentMousePosOverComponent(monitoredComponent)) {
-					//left towards outside
-					itemWithMouseOver = null;
-				}
 			}
 		}
-		@Override
-		public void mouseClicked(MouseEvent e) {}
-		@Override
-		public void mousePressed(MouseEvent e) {}
-		@Override
-		public void mouseReleased(MouseEvent e) {}
 	}
 
 	private boolean isCurrentMousePosOverComponent(final Component component) {
