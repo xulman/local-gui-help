@@ -12,7 +12,6 @@ import java.awt.event.WindowStateListener;
  -- keyboard focus is (obviously) not altered
 
  void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
- -- important when this manager is triggered
  */
 public class HelpManagerSingleton {
 	private HelpManagerSingleton() {}
@@ -47,20 +46,7 @@ public class HelpManagerSingleton {
 		public void keyReleased(KeyEvent e) {
 			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) processHelpKey();
 		}
-	};
-
-	private void processHelpKey() {
-		if (itemWithMouseOver != null) {
-			if (isCurrentMousePosOverComponent(itemWithMouseOver)) {
-				System.out.println("Would be now printing help for component: " + itemWithMouseOver.getClass().getSimpleName());
-				//showItemHelp(itemWithMouseOver);
-			} else {
-				itemWithMouseOver = null;
-			}
-		}
 	}
-
-	private Component itemWithMouseOver = null;
 
 	// ==================================================================================================================
 	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
