@@ -3,7 +3,15 @@ package sc.fiji.gui.help;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowStateListener;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  void HM.obtain().getKeyboardAction()
@@ -12,6 +20,7 @@ import java.awt.event.WindowStateListener;
  -- keyboard focus is (obviously) not altered
 
  void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
+ -- when the manager is triggered, it attempts to find _the first_ mouse-over'ed component from the list
  */
 public class HelpManagerSingleton {
 	private HelpManagerSingleton() {}
@@ -49,13 +58,32 @@ public class HelpManagerSingleton {
 	}
 
 	// ==================================================================================================================
-	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
-		//helpDialogs.put(guiComponent, ownHelpDialog);
+	class ComponentWithHelp {
+		final Component component;
+		final HelpShower helpDialog;
+
+		ComponentWithHelp(final Component guiElem, final HelpShower helpDialog) {
+			this.component = guiElem;
+			this.helpDialog = helpDialog;
+		}
 	}
 
-		}
+	private final List<ComponentWithHelp> helpDialogs = new LinkedList<>();
 
 		}
+	/**
+	 * Scans the registered GUI components to look for the first one under the mouse cursor.
+	 * The current state (visibility, position and size) of the components is considered,
+	 * as well as the current mouse position, naturally.
+	 */
+	private void processHelpKey() {
+		for (ComponentWithHelp item : helpDialogs) {
+			//TODO: remove the printouts
+			System.out.println("Help: Considering component: " + item.component.getClass().getSimpleName()+", visible="+item.component.isShowing());
+			if (item.component.isShowing() && isCurrentMousePosOverComponent(item.component)) {
+				System.out.println("Would be now printing help for component: " + item.component.getClass().getSimpleName());
+				item.helpDialog.showNonModalHelpNow();
+				return;
 			}
 		}
 	}
