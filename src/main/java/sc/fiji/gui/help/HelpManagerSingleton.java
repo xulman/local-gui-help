@@ -16,15 +16,6 @@ import java.awt.event.WindowStateListener;
  void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
  -- add mouse listeners to inform if/where a mouse is
  -- important when this manager is triggered
-
- MouseListener HM.obtain().addFocusStealer(forThisMainFrame)
- -- deploys the steal-keyboard-focus-on-mouse-enter routine, returns handle on this routine
-
- (this MouseListener must be my special extension that remembers on which component
- it was registered and what was the isFocusable() state before the deployment)
-
- void HM.obtain().removeFocusStealer(MouseListener)
- -- removes/disables the keyboard-focus-stealer from the main frame
  */
 public class HelpManagerSingleton {
 	private HelpManagerSingleton() {}
