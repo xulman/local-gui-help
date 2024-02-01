@@ -3,8 +3,10 @@ package sc.fiji.gui.help;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -168,6 +170,10 @@ public class HelpManagerSingleton {
 		addComponent(guiComponent, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
 	}
 
+	public void registerComponentHelpForWebBrowser(final Component guiComponent, final URL urlToRemoteTopic) {
+		addComponent(guiComponent, () -> openUrlInSystemBrowser(urlToRemoteTopic));
+	}
+
 
 	/**
 	 * An aider to obtain an absolute, local filesystem path to the resources folder of the provided class,
@@ -214,5 +220,36 @@ public class HelpManagerSingleton {
 				throw new RuntimeException("Total failure: Couldn't construct URL obj around simple valid URL string.");
 			}
 		}
+	}
+
+
+	/**
+	 * Opens OS-default web browser on the specified page.
+	 * @param url URL to the requested content.
+	 */
+	public static void openUrlInSystemBrowser(final URL url) {
+		openUrlInSystemBrowser(url.toString());
+	}
+
+	/**
+	 * Opens OS-default web browser on the specified page.
+	 * @param url URL to the requested content.
+	 */
+	public static void openUrlInSystemBrowser(final String url) {
+		final String myOS = System.getProperty("os.name").toLowerCase();
+		try {
+			if (myOS.contains("mac")) {
+				Runtime.getRuntime().exec("open "+url);
+			}
+			else if (myOS.contains("nux") || myOS.contains("nix")) {
+				Runtime.getRuntime().exec("xdg-open "+url);
+			}
+			else if (Desktop.isDesktopSupported()) {
+				Desktop.getDesktop().browse(new URI(url));
+			}
+			else {
+				System.out.println("Please, open this URL yourself: "+url);
+			}
+		} catch (IOException | URISyntaxException ignored) {}
 	}
 }
