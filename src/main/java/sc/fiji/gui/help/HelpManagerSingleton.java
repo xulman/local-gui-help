@@ -36,25 +36,27 @@ public class HelpManagerSingleton {
 	}
 
 	// ==================================================================================================================
-	public static int HELP_KEY1 = KeyEvent.VK_H;
-	public static int HELP_KEY2 = KeyEvent.VK_F1;
-
-	//TODO: getKeyboardListener for the given list of keys... Set<int> keys
-	public KeyListener getKeyboardListener() {
-		return singletonKeyListener;
-	}
 	public Runnable getKeyboardAction() {
 		return this::processHelpKey;
 	}
 
-	private final KeyListener singletonKeyListener = new KeyListener() {
+	public KeyListener getKeyboardListener(final Set<Integer> watchForTheseKeys) {
+		return new HelpKeyListener(watchForTheseKeys);
+	}
+	//
+	private class HelpKeyListener implements KeyListener {
+		private final Set<Integer> hotKeys;
+		HelpKeyListener(final Set<Integer> watchForTheseKeys) {
+			hotKeys = new HashSet<>(watchForTheseKeys);
+		}
+		//
 		@Override
 		public void keyTyped(KeyEvent e) {}
 		@Override
 		public void keyPressed(KeyEvent e) {}
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) processHelpKey();
+			if (hotKeys.contains( e.getKeyCode() )) processHelpKey();
 		}
 	}
 
