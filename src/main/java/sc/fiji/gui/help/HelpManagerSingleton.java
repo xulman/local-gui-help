@@ -20,6 +20,7 @@ import java.util.Set;
  -- keyboard focus is (obviously) not altered
 
  void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
+ -- registers the component into the _sorted_ list of "help-enabled components"
  -- when the manager is triggered, it attempts to find _the first_ mouse-over'ed component from the list
  */
 public class HelpManagerSingleton {
@@ -94,4 +95,37 @@ public class HelpManagerSingleton {
 		p.translate( -c.x, -c.y ); //NB: the same as ".sub(component.corner)"
 		return !(p.x < 0 || p.y < 0 || p.x >= component.getWidth() || p.y >= component.getHeight());
 	}
+
+	private void addComponent(final Component component, final HelpShower helpDialog) {
+		final int inArea = component.getWidth() * component.getHeight();
+		int index = -1;
+		for (ComponentWithHelp registeredHelp : helpDialogs) {
+			Component c = registeredHelp.component;
+			++index;
+
+			int cArea = c.getWidth() * c.getHeight();
+			if (inArea < cArea) {
+				//'index' points now on the enlisted component that's larger
+				helpDialogs.add( index, new ComponentWithHelp(component,helpDialog) );
+				return;
+			}
+		}
+		//if we got here, there was no smaller registered component
+		helpDialogs.add(  new ComponentWithHelp(component,helpDialog) );
+	}
+
+	/**
+	 * Unregisters the given component together with its local help dialog.
+	 * It returns the status of the {@link List::remove()} operation.
+	 * @param component The component that shall no longer provide a local help.
+	 * @return False if the given component was null or not present in the list, else True.
+	 */
+	public boolean unregisterComponentHelp(final Component component) {
+		try {
+			return helpDialogs.remove(component);
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
 }
