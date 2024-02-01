@@ -71,7 +71,26 @@ public class HelpManagerSingleton {
 
 	private final List<ComponentWithHelp> helpDialogs = new LinkedList<>();
 
+	/**
+	 * Starts the help dialog for the given component if that component has been previously registered via
+	 * the family of registering methods, such as {@link HelpManager#registerComponentHelp(Component, Path, String)}.
+	 * If it wasn't registered or null was given, any particular dialog is thus not available, and nothing is
+	 * shown consequently leaving the call with false return value.
+	 *
+	 * @param guiItem Component of which the help should be displayed.
+	 * @return true when help dialog for the input component has been registered previously and was thus shown.
+	 */
+	public boolean showItemHelp(Component guiItem) {
+		if (guiItem == null) return false;
+		for (ComponentWithHelp item : helpDialogs) {
+			if (guiItem == item.component) {
+				item.helpDialog.showNonModalHelpNow();
+				return true;
+			}
 		}
+		return false;
+	}
+
 	/**
 	 * Scans the registered GUI components to look for the first one under the mouse cursor.
 	 * The current state (visibility, position and size) of the components is considered,
