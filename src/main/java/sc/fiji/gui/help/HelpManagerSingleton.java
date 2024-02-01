@@ -149,4 +149,51 @@ public class HelpManagerSingleton {
 		}
 	}
 
+
+	/**
+	 * An aider to obtain an absolute, local filesystem path to the resources folder of the provided class,
+	 * and this path is concatenated with a relative path to the 'topic'. Typically, a class is used that is responsible for
+	 * the functionality behind a GUI element for which {@link HelpManager#registerComponentHelp(Component, Path, String)}
+	 * is called, and that carries the help resources with it. The path to the class resources folder is yielded by
+	 * querying for {@code appClass.getResource(topic+"/1.html")}.
+	 *
+	 * @param appClass The class whose resource folder is extracted.
+	 * @param topic The sub-folder in the resources folder is appended to the constructed path.
+	 * @return An absolute, local filesystem path to the topic.
+	*/
+	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
+		try {
+			return Paths.get(appClass.getResource(topic+"/1.html").toURI()).getParent();
+		} catch (URISyntaxException | NullPointerException e) {
+			try {
+				System.err.println("Failed finding the local help "+appClass.getSimpleName()+"/"+topic
+						+", trying a default placeholder instead...");
+				return Paths.get(HelpManager.class.getResource("defaultDescription.html").toURI());
+				//NB: notice the name of this framework...
+				//TODO: the defaultDescription.html could show a demo how to create such local help
+			} catch (URISyntaxException | NullPointerException ex) {
+				throw new RuntimeException("Requested help ("
+						+appClass.getSimpleName()+"/"+topic+") as well as default substitute help was not found.");
+			}
+		}
+	}
+
+	/**
+	 * An aider to construct URL objects without the hassle of dealing with the potential {@link MalformedURLException}.
+	 * If invalid input is given, the methods return URL pointing at https://scijava.org/.
+	 *
+	 * @param urlAsPlainText URL string to be wrapped into a proper {@link URL} object.
+	 * @return URL object wrapped around the textual URL.
+	 */
+	public static URL constructURL(final String urlAsPlainText) {
+		try {
+			return new URL(urlAsPlainText);
+		} catch (MalformedURLException e) {
+			try {
+				return new URL("https://scijava.org/");
+			} catch (MalformedURLException ex) {
+				throw new RuntimeException("Total failure: Couldn't construct URL obj around simple valid URL string.");
+			}
+		}
+	}
 }
