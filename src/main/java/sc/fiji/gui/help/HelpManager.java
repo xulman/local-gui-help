@@ -1,185 +1,192 @@
-/*-
- * #%L
- * A framework for Java apps that attaches and shows simple help dialogs/wizzards to developer-chosen GUI controls.
- * %%
- * Copyright (C) 2024 Vladimir Ulman
- * %%
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- * #L%
- */
 package sc.fiji.gui.help;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Set;
 
+/**
+ void HM.obtain().getKeyboardAction()
+ -- use for the binding+actions, triggers this manager
+ -- should be bound to "the usual place in the app", could be bound in multiple places
+ -- keyboard focus is (obviously) not altered
+
+ void HM.obtain().registerComponentHelp(forThisComponent, ....help params....)
+ -- registers the component into the _sorted_ list of "help-enabled components"
+ -- when the manager is triggered, it attempts to find _the first_ mouse-over'ed component from the list
+ */
 public class HelpManager {
-	public static int HELP_KEY1 = KeyEvent.VK_H;
-	public static int HELP_KEY2 = KeyEvent.VK_F1;
+	private HelpManager() {}
 
-	public HelpManager(final Container theMainAppWindowContentPane) {
-		this.theMainAppWindowContentPane = theMainAppWindowContentPane;
+	private static HelpManager instance = null;
 
-		//since keyboard event can arrive only to an element with focus,
-		//we have to make sure the pane can be focused (can receive keyboard events)
-		theMainAppWindowContentPane.setFocusable(true);
-		theMainAppWindowContentPane.addKeyListener(new HelpKeyMonitor());
-
-		//show no help when help key is pressed with mouse over the monitored main window,
-		//it can be overridden later from the client code
-		helpDialogs.put(theMainAppWindowContentPane, noHelpShower);
-
-		//focuses this pane whenever mouse arrives over the app window (the main content pane),
-		//which makes it see all keyboard events until the focus is changed (e.g. with mouse click or tab)
-		doMonitorMouseOvers = true;
-		theMainAppWindowContentPane.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				theMainAppWindowContentPane.requestFocusInWindow();
-				itemWithMouseOver = theMainAppWindowContentPane;
-			}
-			@Override
-			public void mouseClicked(MouseEvent e) {}
-			@Override
-			public void mousePressed(MouseEvent e) {}
-			@Override
-			public void mouseReleased(MouseEvent e) {}
-			@Override
-			public void mouseExited(MouseEvent e) {
-				if (itemWithMouseOver == theMainAppWindowContentPane) {
-					final int mouseX = e.getX();
-					final int mouseY = e.getY();
-					//is mouse leaving this (container) component through its outside boundary?
-					//(in contrast to "leaving into" another (child) component that is inside/over
-					// this (container) component)
-					if (mouseX < 0 || mouseX >= theMainAppWindowContentPane.getWidth()
-							|| mouseY < 0 || mouseY >= theMainAppWindowContentPane.getHeight()) {
-						//left outside
-						itemWithMouseOver = null;
-					}
-				}
-			}
-		});
+	public static synchronized HelpManager obtain() {
+		if (instance == null) {
+			instance = new HelpManager();
+		}
+		return instance;
 	}
 
-	public HelpManager() {
-		doMonitorMouseOvers = false;
-		theMainAppWindowContentPane = null;
+	// ==================================================================================================================
+	public Runnable getKeyboardAction() {
+		return this::processHelpKey;
 	}
 
-	private final Component theMainAppWindowContentPane;
-	private Component itemWithMouseOver = null;
-	private final MouseOverMonitor mouseOverListener = new MouseOverMonitor();
-	private final boolean doMonitorMouseOvers;
-
-	class MouseOverMonitor implements MouseListener {
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			itemWithMouseOver = e.getComponent();
-		}
-		@Override
-		public void mouseExited(MouseEvent e) {
-			if (itemWithMouseOver == e.getComponent()) itemWithMouseOver = null;
-			//NB: to make sure only myself is removed
-			//    (just in case somebody else managed to set this attrib already,
-			//     which could happen when mouseEntered() on that somebody was called
-			//     before mouseExited() of the actual mouse-over'ed item
-			//     (theoretically, it shouldn't happen) )
-		}
-		@Override
-		public void mouseClicked(MouseEvent e) {}
-		@Override
-		public void mousePressed(MouseEvent e) {}
-		@Override
-		public void mouseReleased(MouseEvent e) {}
+	public KeyListener getKeyboardListener(final Set<Integer> watchForTheseKeys) {
+		return new HelpKeyListener(watchForTheseKeys);
 	}
-
-	class HelpKeyMonitor implements KeyListener {
-		final Component monitoredComponent;
-		public HelpKeyMonitor(final Component forThisComponent) {
-			monitoredComponent = forThisComponent;
+	//
+	private class HelpKeyListener implements KeyListener {
+		private final Set<Integer> hotKeys;
+		HelpKeyListener(final Set<Integer> watchForTheseKeys) {
+			hotKeys = new HashSet<>(watchForTheseKeys);
 		}
-		public HelpKeyMonitor() {
-			monitoredComponent = null;
-			//NB: flags that the currently (at the time this listener is triggered)
-			//    mouse-over'ed component should be used instead of this.monitoredComponent
-		}
+		//
 		@Override
 		public void keyTyped(KeyEvent e) {}
 		@Override
 		public void keyPressed(KeyEvent e) {}
 		@Override
 		public void keyReleased(KeyEvent e) {
-			//TODO: this goes into the debug branch
-			//System.out.println("key released: "+e.getKeyChar());
-			if (e.getKeyCode() == HELP_KEY1 || e.getKeyCode() == HELP_KEY2) {
-				if (monitoredComponent != null) showItemHelp(monitoredComponent);
-				else if (itemWithMouseOver != null) showItemHelp(itemWithMouseOver);
-			}
+			if (hotKeys.contains( e.getKeyCode() )) processHelpKey();
 		}
 	}
 
 	// ==================================================================================================================
+	private class ComponentWithHelp {
+		final Component component;
+		final HelpShower helpDialog;
+
+		ComponentWithHelp(final Component guiElem, final HelpShower helpDialog) {
+			this.component = guiElem;
+			this.helpDialog = helpDialog;
+		}
+	}
+
+	private final List<ComponentWithHelp> helpDialogs = new LinkedList<>();
+
+	/**
+	 * Starts the help dialog for the given component if that component has been previously registered via
+	 * the family of registering methods, such as {@link HelpManager#registerComponentHelp(Component, Path, String)}.
+	 * If it wasn't registered or null was given, any particular dialog is thus not available, and nothing is
+	 * shown consequently leaving the call with false return value.
+	 *
+	 * @param guiItem Component of which the help should be displayed.
+	 * @return true when help dialog for the input component has been registered previously and was thus shown.
+	 */
+	public boolean showHelpNow(Component guiItem) {
+		if (guiItem == null) return false;
+		for (ComponentWithHelp item : helpDialogs) {
+			if (guiItem == item.component) {
+				item.helpDialog.showNonModalHelpNow();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Scans the registered GUI components to look for the first one under the mouse cursor.
+	 * The current state (visibility, position and size) of the components is considered,
+	 * as well as the current mouse position, naturally.
+	 */
+	private void processHelpKey() {
+		for (ComponentWithHelp item : helpDialogs) {
+			//Enable to debug:
+			//System.out.println("Help: Considering component: " + item.component.getClass().getSimpleName()+", visible="+item.component.isShowing());
+			if (item.component.isShowing() && isCurrentMousePosOverComponent(item.component)) {
+				//Enable to debug:
+				//System.out.println("Would be now printing help for component: " + item.component.getClass().getSimpleName());
+				item.helpDialog.showNonModalHelpNow();
+				return;
+			}
+		}
+	}
+
+	private boolean isCurrentMousePosOverComponent(final Component component) {
+		final Point p = MouseInfo.getPointerInfo().getLocation();
+		final Point c = component.getLocationOnScreen();
+		p.translate( -c.x, -c.y ); //NB: the same as ".sub(component.corner)"
+		return !(p.x < 0 || p.y < 0 || p.x >= component.getWidth() || p.y >= component.getHeight());
+	}
+
+	private void addComponent(final Component component, final HelpShower helpDialog) {
+		final int inArea = component.getWidth() * component.getHeight();
+		int index = -1;
+		for (ComponentWithHelp registeredHelp : helpDialogs) {
+			Component c = registeredHelp.component;
+			++index;
+
+			int cArea = c.getWidth() * c.getHeight();
+			if (inArea < cArea) {
+				//'index' points now on the enlisted component that's larger
+				helpDialogs.add( index, new ComponentWithHelp(component,helpDialog) );
+				return;
+			}
+		}
+		//if we got here, there was no smaller registered component
+		helpDialogs.add(  new ComponentWithHelp(component,helpDialog) );
+	}
+
+	/**
+	 * Unregisters the given guiComponent together with its local help dialog.
+	 * It returns the status of the {@link List::remove()} operation.
+	 * @param guiComponent The guiComponent that shall no longer provide a local help.
+	 * @return False if the given guiComponent was null or not present in the list, else True.
+	 */
+	public boolean unregisterComponentHelp(final Component guiComponent) {
+		try {
+			return helpDialogs.remove(guiComponent);
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	// ==================================================================================================================
+	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
+		addComponent(guiComponent, ownHelpDialog);
+	}
+
 	public void registerComponentHelp(final Component guiComponent, final Path pathToLocalTopic, final String dialogTitle) {
-		if (doMonitorMouseOvers) guiComponent.addMouseListener(mouseOverListener);
-		guiComponent.addKeyListener(new HelpKeyMonitor(guiComponent));
-		helpDialogs.put(guiComponent, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
+		registerComponentHelp(guiComponent, pathToLocalTopic, dialogTitle, 0);
+	}
+
+	public void registerComponentHelp(final Component guiComponent, final Path pathToLocalTopic,
+	                                  final String dialogTitle, final int startOnThisPageNumber) {
+		//TODO: add the first start page number into the LocalHelpShower
+		addComponent(guiComponent, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
 	}
 
 	public void registerComponentHelp(final Component guiComponent, final URL urlToRemoteTopic, final String dialogTitle) {
-		if (doMonitorMouseOvers) guiComponent.addMouseListener(mouseOverListener);
-		guiComponent.addKeyListener(new HelpKeyMonitor(guiComponent));
-		helpDialogs.put(guiComponent, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
+		addComponent(guiComponent, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
 	}
 
-	public void registerComponentHelp(final Component guiComponent, final HelpShower ownHelpDialog) {
-		if (doMonitorMouseOvers) guiComponent.addMouseListener(mouseOverListener);
-		guiComponent.addKeyListener(new HelpKeyMonitor(guiComponent));
-		helpDialogs.put(guiComponent, ownHelpDialog);
+	public void registerComponentHelpForWebBrowser(final Component guiComponent, final URL urlToRemoteTopic) {
+		addComponent(guiComponent, () -> openUrlInSystemBrowser(urlToRemoteTopic));
 	}
 
-	public void registerComponentHelp(final Path pathToLocalTopic, final String dialogTitle) {
-		if (theMainAppWindowContentPane != null)
-			helpDialogs.put(theMainAppWindowContentPane, new DefaultLocalHelpShower(pathToLocalTopic, dialogTitle));
-	}
 
-	public void registerComponentHelp(final URL urlToRemoteTopic, final String dialogTitle) {
-		if (theMainAppWindowContentPane != null)
-			helpDialogs.put(theMainAppWindowContentPane, new DefaultRemoteHelpShower(urlToRemoteTopic, dialogTitle));
-	}
-
-	public void registerComponentHelp(final HelpShower ownHelpDialog) {
-		if (theMainAppWindowContentPane != null) helpDialogs.put(theMainAppWindowContentPane, ownHelpDialog);
-	}
-
+	/**
+	 * An aider to obtain an absolute, local filesystem path to the resources folder of the provided class,
+	 * and this path is concatenated with a relative path to the 'topic'. Typically, a class is used that is responsible for
+	 * the functionality behind a GUI element for which {@link HelpManager#registerComponentHelp(Component, Path, String)}
+	 * is called, and that carries the help resources with it. The path to the class resources folder is yielded by
+	 * querying for {@code appClass.getResource(topic+"/1.html")}.
+	 *
+	 * @param appClass The class whose resource folder is extracted.
+	 * @param topic The sub-folder in the resources folder is appended to the constructed path.
+	 * @return An absolute, local filesystem path to the topic.
+	*/
 	public static Path constructPathToLocalTopics(final Class<?> appClass, final String topic) {
 		try {
 			return Paths.get(appClass.getResource(topic+"/1.html").toURI()).getParent();
@@ -216,28 +223,34 @@ public class HelpManager {
 		}
 	}
 
-	// ==================================================================================================================
+
 	/**
-	 * Starts the help dialog for the given component if that component has been previously registered via
-	 * the family of registering methods, such as {@link HelpManager#registerComponentHelp(Component, Path, String)}.
-	 * If null is given, the method silently quits without showing anything.
-	 *
-	 * @param guiItem Component of which the help should be displayed.
+	 * Opens OS-default web browser on the specified page.
+	 * @param url URL to the requested content.
 	 */
-	public void showItemHelp(Component guiItem) {
-		if (guiItem == null) {
-			//TODO: add log consumer to this class
-			//TODO: this goes into the debug branch
-			//System.err.println("would show help, but nothing is active!?");
-			return;
-		}
-		//TODO: this goes into the debug branch
-		//System.out.println("showing help for item "+guiItem);
-		helpDialogs.get(guiItem).showNonModalHelpNow();
-		//TODO: make resilient when the guiItem is by chance not found!
-		//TODO: show it in a separate thread, non-modal
+	public static void openUrlInSystemBrowser(final URL url) {
+		openUrlInSystemBrowser(url.toString());
 	}
 
-	private final Map<Component, HelpShower> helpDialogs = new HashMap<>(10);
-	private static final HelpShower noHelpShower = () -> { /* does nothing intentionally */ };
+	/**
+	 * Opens OS-default web browser on the specified page.
+	 * @param url URL to the requested content.
+	 */
+	public static void openUrlInSystemBrowser(final String url) {
+		final String myOS = System.getProperty("os.name").toLowerCase();
+		try {
+			if (myOS.contains("mac")) {
+				Runtime.getRuntime().exec("open "+url);
+			}
+			else if (myOS.contains("nux") || myOS.contains("nix")) {
+				Runtime.getRuntime().exec("xdg-open "+url);
+			}
+			else if (Desktop.isDesktopSupported()) {
+				Desktop.getDesktop().browse(new URI(url));
+			}
+			else {
+				System.out.println("Please, open this URL yourself: "+url);
+			}
+		} catch (IOException | URISyntaxException ignored) {}
+	}
 }
