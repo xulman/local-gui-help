@@ -102,10 +102,11 @@ public class HelpManagerSingleton {
 	 */
 	private void processHelpKey() {
 		for (ComponentWithHelp item : helpDialogs) {
-			//TODO: remove the printouts
-			System.out.println("Help: Considering component: " + item.component.getClass().getSimpleName()+", visible="+item.component.isShowing());
+			//Enable to debug:
+			//System.out.println("Help: Considering component: " + item.component.getClass().getSimpleName()+", visible="+item.component.isShowing());
 			if (item.component.isShowing() && isCurrentMousePosOverComponent(item.component)) {
-				System.out.println("Would be now printing help for component: " + item.component.getClass().getSimpleName());
+				//Enable to debug:
+				//System.out.println("Would be now printing help for component: " + item.component.getClass().getSimpleName());
 				item.helpDialog.showNonModalHelpNow();
 				return;
 			}
