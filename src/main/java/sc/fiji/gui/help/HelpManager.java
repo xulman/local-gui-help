@@ -10,10 +10,8 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.LinkedList;
-import java.util.Set;
 
 /**
  void HM.obtain().getKeyboardAction()
@@ -30,6 +28,7 @@ public class HelpManager {
 
 	private static HelpManager instance = null;
 
+	/** Returns the one and always the same instance of the help manager. */
 	public static synchronized HelpManager obtain() {
 		if (instance == null) {
 			instance = new HelpManager();
@@ -38,10 +37,22 @@ public class HelpManager {
 	}
 
 	// ==================================================================================================================
+
+	/**
+	 * Exposes the help manager's entry point (handle) to Action-oriented applications,
+	 * a method that's executed when the corresponding Action is triggered.
+	 * @return Reference on the right method from this help manager
+	 */
 	public Runnable getKeyboardAction() {
 		return this::processHelpKey;
 	}
 
+	/**
+	 * Creates {@link KeyListener}, to be attached in the application, that
+	 * activates this help manager when any of the given keys are pressed.
+	 * @param watchForTheseKeys Set of keys that should trigger this help manager.
+	 * @return Always a new object that implements the {@link KeyListener}.
+	 */
 	public KeyListener getKeyboardListener(final Set<Integer> watchForTheseKeys) {
 		return new HelpKeyListener(watchForTheseKeys);
 	}
@@ -73,12 +84,12 @@ public class HelpManager {
 		}
 	}
 
-	private final List<ComponentWithHelp> helpDialogs = new LinkedList<>();
+	private final List<ComponentWithHelp> helpDialogs = new ArrayList<>(30);
 
 	/**
 	 * Starts the help dialog for the given component if that component has been previously registered via
 	 * the family of registering methods, such as {@link HelpManager#registerComponentHelp(Component, Path, String)}.
-	 * If it wasn't registered or null was given, any particular dialog is thus not available, and nothing is
+	 * If it wasn't registered or null is given, any particular dialog is thus not available, and nothing is
 	 * shown consequently leaving the call with false return value.
 	 *
 	 * @param guiItem Component of which the help should be displayed.
@@ -99,6 +110,8 @@ public class HelpManager {
 	 * Scans the registered GUI components to look for the first one under the mouse cursor.
 	 * The current state (visibility, position and size) of the components is considered,
 	 * as well as the current mouse position, naturally.
+	 *
+	 * This is the entry point that's called after triggering the local help in the client application.
 	 */
 	private void processHelpKey() {
 		for (ComponentWithHelp item : helpDialogs) {
@@ -127,6 +140,9 @@ public class HelpManager {
 			Component c = registeredHelp.component;
 			++index;
 
+			//NB: considering the _current_ area of the (previously) registered components
+			//    (not a stored area that might no longer be accurate),
+			//    against the _currently_ added component
 			int cArea = c.getWidth() * c.getHeight();
 			if (inArea < cArea) {
 				//'index' points now on the enlisted component that's larger
@@ -196,7 +212,6 @@ public class HelpManager {
 						+", trying a default placeholder instead...");
 				return Paths.get(HelpManager.class.getResource("defaultDescription.html").toURI());
 				//NB: notice the name of this framework...
-				//TODO: the defaultDescription.html could show a demo how to create such local help
 			} catch (URISyntaxException | NullPointerException ex) {
 				throw new RuntimeException("Requested help ("
 						+appClass.getSimpleName()+"/"+topic+") as well as default substitute help was not found.");
