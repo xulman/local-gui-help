@@ -30,8 +30,11 @@ package sc.fiji.gui.help;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import static sc.fiji.gui.help.HelpManager.constructPathToLocalTopics;
 
@@ -58,6 +61,13 @@ public class PlayingAroundApp {
 		helpManager.registerComponentHelp(panel3,
 				constructPathToLocalTopics(PanelControlledWorker.class,"Topic2"),
 				"ANOTHER LOCAL FILE HELP");
+
+		final Set<Integer> keys = new HashSet<>(1);
+		keys.add( KeyEvent.VK_H );
+		keys.add( KeyEvent.VK_J );
+		panel1.addKeyListener( helpManager.getKeyboardListener( keys ) );
+		panel2.addKeyListener( helpManager.getKeyboardListener( keys ) );
+		panel3.addKeyListener( helpManager.getKeyboardListener( keys ) );
 	}
 
 	JFrame buildAppWindow() {
