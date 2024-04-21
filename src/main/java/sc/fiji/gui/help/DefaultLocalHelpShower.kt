@@ -110,6 +110,8 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path, val
 
     fun fillPage(imagePane: JLabel, textPane: JEditorPane) {
         //TODO can fail reading the png, provide placeholder then.. like missed file and the path to it
+        //TODO the png can exists as a reference, "1.png.url" in which case the content of the file
+        //     is the URL to where an image and that image should be displayed
         imagePane.icon = ImageIcon(pathToLocalHelp.resolve("$currentPage.png").toString())
         textPane.text = readCompleteFile(pathToLocalHelp.resolve("$currentPage.html"))
     }
