@@ -26,11 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package sc.fiji.gui.help;
+package sc.fiji.gui.help
 
-public class PanelControlledWorker {
-	@Override
-	public String toString() {
-		return "I'm only a placeholder for a functionality that's controlled by the relevant GUI component";
-	}
+class PanelControlledWorker {
+    override fun toString(): String {
+        return "I'm only a placeholder for a functionality that's controlled by the relevant GUI component"
+    }
 }
