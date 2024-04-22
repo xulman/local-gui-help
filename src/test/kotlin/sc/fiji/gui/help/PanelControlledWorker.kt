@@ -29,7 +29,6 @@
 package sc.fiji.gui.help
 
 class PanelControlledWorker {
-    override fun toString(): String {
-        return "I'm only a placeholder for a functionality that's controlled by the relevant GUI component"
-    }
+    override fun toString(): String =
+        "I'm only a placeholder for a functionality that's controlled by the relevant GUI component"
 }

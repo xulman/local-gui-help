@@ -28,6 +28,7 @@
  */
 package sc.fiji.gui.help
 
+import HelpShower
 import java.awt.*
 import java.io.IOException
 import java.net.URL
@@ -35,10 +36,10 @@ import javax.swing.JEditorPane
 import javax.swing.JFrame
 import javax.swing.JLabel
 
-class DefaultRemoteHelpShower internal constructor(val urlToRemoteHelp: URL, val dialogTitle: String) : HelpShower {
+class DefaultRemoteHelpShower internal constructor(val urlToRemoteHelp: URL,
+                                                   val dialogTitle: String) : HelpShower {
     override fun showNonModalHelpNow() {
-        val contentPane = Panel()
-        contentPane.layout = GridBagLayout()
+        val contentPane = Panel().apply { layout = GridBagLayout() }
 
         //TODO: make these a common static attrib, part of the iface?
         val minSize = Dimension(300, 300)
@@ -46,32 +47,35 @@ class DefaultRemoteHelpShower internal constructor(val urlToRemoteHelp: URL, val
 
         //TODO: make the link click-able
         val urlHeader = JLabel("Showing content from: $urlToRemoteHelp")
-        val textPane = JEditorPane()
-        textPane.isEditable = false
-        textPane.contentType = "text/html"
-        try {
-            textPane.page = urlToRemoteHelp
-        } catch (e: IOException) {
-            textPane.text = "FALLBACK CONTENT because failed opening the URL:<br/>$urlToRemoteHelp"
+        val textPane = JEditorPane().apply {
+            isEditable = false
+            contentType = "text/html"
+            try {
+                page = urlToRemoteHelp
+            } catch (e: IOException) {
+                text = "FALLBACK CONTENT because failed opening the URL:<br/>$urlToRemoteHelp"
+            }
+            minimumSize = minSize
+            this.preferredSize = preferredSize
         }
-        textPane.minimumSize = minSize
-        textPane.preferredSize = preferredSize
 
-        val c = GridBagConstraints()
-        c.anchor = GridBagConstraints.CENTER
-        c.fill = GridBagConstraints.BOTH
-        c.gridx = 0
-        c.gridy = 1
+        val c = GridBagConstraints().apply {
+            anchor = GridBagConstraints.CENTER
+            fill = GridBagConstraints.BOTH
+            gridx = 0
+            gridy = 1
+        }
         contentPane.add(textPane, c)
         c.gridy = 0
         c.insets = Insets(5, 5, 10, 5)
         contentPane.add(urlHeader, c)
 
         //TODO: add close button! (to make it look similar to the sibbling help dialog)
-        val f = JFrame(dialogTitle)
-        f.contentPane = contentPane
-        f.pack()
-        f.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
-        f.isVisible = true
+        JFrame(dialogTitle).apply {
+            this.contentPane = contentPane
+            pack()
+            defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+            isVisible = true
+        }
     }
 }

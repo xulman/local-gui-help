@@ -28,22 +28,23 @@
  */
 package sc.fiji.gui.help
 
+import HelpShower
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Panel
-import java.awt.event.ActionEvent
-import java.io.IOException
-import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.*
+import kotlin.io.path.readText
 
-class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path, val dialogTitle: String) : HelpShower {
+class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path,
+                                                  val dialogTitle: String) : HelpShower {
     var currentPage: Int = 0
 
     override fun showNonModalHelpNow() {
-        val contentPane = Panel()
-        contentPane.layout = GridBagLayout()
+        val contentPane = Panel().apply {
+            layout = GridBagLayout()
+        }
 
         val minSizeImg = Dimension(300, 200)
         val minSizeTxt = Dimension(300, 100)
@@ -68,23 +69,24 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path, val
         currentPage = 1
         fillPage(imagePane, textPane)
         //
-        prevB.addActionListener { l: ActionEvent? ->
+        prevB.addActionListener {
             if (currentPage > 1) {
                 --currentPage
                 fillPage(imagePane, textPane)
             }
         }
-        nextB.addActionListener { l: ActionEvent? ->
+        nextB.addActionListener {
             ++currentPage
             fillPage(imagePane, textPane)
         }
 
-        val c = GridBagConstraints()
-        c.anchor = GridBagConstraints.CENTER
-        c.fill = GridBagConstraints.BOTH
-        c.gridwidth = 3
-        c.gridx = 0
-        c.gridy = 0
+        val c = GridBagConstraints().apply {
+            anchor = GridBagConstraints.CENTER
+            fill = GridBagConstraints.BOTH
+            gridwidth = 3
+            gridx = 0
+            gridy = 0
+        }
         contentPane.add(imagePane, c)
         c.gridy = 1
         contentPane.add(textPane, c)
@@ -99,13 +101,14 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path, val
         c.gridx = 2
         contentPane.add(closeB, c)
 
-        val f = JFrame(dialogTitle)
-        f.contentPane = contentPane
-        f.pack()
-        f.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
-        f.isVisible = true
+        val f = JFrame(dialogTitle).apply {
+            this.contentPane = contentPane
+            pack()
+            defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+            isVisible = true
+        }
 
-        closeB.addActionListener { l: ActionEvent? -> f.isVisible = false }
+        closeB.addActionListener { f.isVisible = false }
     }
 
     fun fillPage(imagePane: JLabel, textPane: JEditorPane) {
@@ -113,16 +116,6 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path, val
         //TODO the png can exists as a reference, "1.png.url" in which case the content of the file
         //     is the URL to where an image and that image should be displayed
         imagePane.icon = ImageIcon(pathToLocalHelp.resolve("$currentPage.png").toString())
-        textPane.text = readCompleteFile(pathToLocalHelp.resolve("$currentPage.html"))
-    }
-
-    companion object {
-        fun readCompleteFile(path: Path): String {
-            return try {
-                String(Files.readAllBytes(path))
-            } catch (e: IOException) {
-                "FALLBACK CONTENT because failed opening the file:<br/>$path"
-            }
-        }
+        textPane.text = pathToLocalHelp.resolve("$currentPage.html").readText()
     }
 }
