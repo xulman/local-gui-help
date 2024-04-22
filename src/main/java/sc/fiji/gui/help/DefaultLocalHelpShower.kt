@@ -50,16 +50,16 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path, val
         val preferredSizeImg = Dimension(600, 400)
         val preferredSizeTxt = Dimension(600, 200)
 
-        val imagePane = JLabel()
-        imagePane.minimumSize = minSizeImg
-        imagePane.preferredSize = preferredSizeImg
-
-        val textPane = JEditorPane()
-        textPane.isEditable = false
-        textPane.contentType = "text/html"
-        textPane.minimumSize = minSizeTxt
-        textPane.preferredSize = preferredSizeTxt
-
+        val imagePane = JLabel().apply {
+            minimumSize = minSizeImg
+            preferredSize = preferredSizeImg
+        }
+        val textPane = JEditorPane().apply {
+            isEditable = false
+            contentType = "text/html"
+            minimumSize = minSizeTxt
+            preferredSize = preferredSizeTxt
+        }
         //TODO: add buttons!
         val prevB = JButton("Previous")
         val nextB = JButton("Next")
