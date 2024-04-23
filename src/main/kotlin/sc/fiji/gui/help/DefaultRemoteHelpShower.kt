@@ -28,7 +28,6 @@
  */
 package sc.fiji.gui.help
 
-import HelpShower
 import java.awt.*
 import java.io.IOException
 import java.net.URL
