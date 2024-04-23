@@ -48,6 +48,7 @@ object HelpManager {
         //
         override fun keyTyped(e: KeyEvent) {}
         override fun keyPressed(e: KeyEvent) {}
+        @Synchronized
         override fun keyReleased(e: KeyEvent) {
             if (e.keyCode in hotKeys) processHelpKey()
         }

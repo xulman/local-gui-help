@@ -28,7 +28,6 @@
  */
 package sc.fiji.gui.help
 
-import HelpShower
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
