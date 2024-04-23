@@ -89,11 +89,12 @@ object HelpManager {
      */
     private fun processHelpKey() {
         for (item in helpDialogs) {
+            val name = item.component.javaClass.getSimpleName()
             //Enable to debug:
-            //System.out.println("Help: Considering component: " + item.component.getClass().getSimpleName()+", visible="+item.component.isShowing());
+            println("Help: Considering component: $name, visible=${item.component.isShowing()}")
             if (item.component.isShowing && isCurrentMousePosOverComponent(item.component)) {
                 //Enable to debug:
-                //System.out.println("Would be now printing help for component: " + item.component.getClass().getSimpleName());
+                println("Would be now printing help for component: $name")
                 item.helpDialog.showNonModalHelpNow()
                 return
             }

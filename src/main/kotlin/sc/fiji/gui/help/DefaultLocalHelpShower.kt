@@ -34,6 +34,7 @@ import java.awt.GridBagLayout
 import java.awt.Panel
 import java.nio.file.Path
 import javax.swing.*
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path,
@@ -76,7 +77,12 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path,
         }
         nextB.addActionListener {
             ++currentPage
-            fillPage(imagePane, textPane)
+            if (currentHTML.exists())
+                fillPage(imagePane, textPane)
+            else {
+                --currentPage
+                println("no more pages")
+            }
         }
 
         val c = GridBagConstraints().apply {
@@ -115,6 +121,9 @@ class DefaultLocalHelpShower internal constructor(val pathToLocalHelp: Path,
         //TODO the png can exists as a reference, "1.png.url" in which case the content of the file
         //     is the URL to where an image and that image should be displayed
         imagePane.icon = ImageIcon(pathToLocalHelp.resolve("$currentPage.png").toString())
-        textPane.text = pathToLocalHelp.resolve("$currentPage.html").readText()
+        textPane.text = currentHTML.readText()
     }
+
+    val currentHTML
+        get() = pathToLocalHelp.resolve("$currentPage.html")
 }
