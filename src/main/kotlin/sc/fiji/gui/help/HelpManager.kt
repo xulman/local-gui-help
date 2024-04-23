@@ -165,14 +165,14 @@ object HelpManager {
      */
     inline infix fun <reified C> constructPathToLocalTopics(topic: String): Path {
         val appClass = C::class.java
-        val error = "Requested help (${appClass.simpleName}/$topic) as well as default substitute help was not found."
+        val help = "${appClass.simpleName}/$topic"
+        val error = "Requested help ($help) as well as default substitute help was not found."
         try {
-            return Paths.get(appClass.getResource("$topic/1.html").toURI()).parent
+            return Paths.get(appClass.getResource("$topic/1.html")!!.toURI()).parent
         } catch (e: URISyntaxException) {
             try {
-                System.err.println("Failed finding the local help " + appClass.simpleName + "/" + topic
-                                   + ", trying a default placeholder instead...")
-                return Paths.get(HelpManager::class.java.getResource("defaultDescription.html").toURI())
+                System.err.println("""Failed finding the local help $help, trying a default placeholder instead...""")
+                return Paths.get(HelpManager::class.java.getResource("defaultDescription.html")!!.toURI())
                 //NB: notice the name of this framework...
             } catch (ex: URISyntaxException) {
                 throw RuntimeException(error)
@@ -181,8 +181,9 @@ object HelpManager {
             }
         } catch (e: NullPointerException) {
             try {
-                System.err.println("Failed finding the local help ${appClass.simpleName}/$topic, trying a default placeholder instead...")
-                return Paths.get(HelpManager::class.java.getResource("defaultDescription.html").toURI())
+                System.err.println("Failed finding the local help $help, trying with MarkDown")
+//                return Paths.get(HelpManager::class.java.getResource("defaultDescription.html")!!.toURI())
+                return Paths.get(appClass.getResource("$topic/1.md")!!.toURI()).parent
             } catch (ex: URISyntaxException) {
                 throw RuntimeException(error)
             } catch (ex: NullPointerException) {
