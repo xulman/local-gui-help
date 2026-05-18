@@ -1,6 +1,9 @@
 package sc.fiji.gui.help;
 
+import javax.swing.Action;
+import javax.swing.AbstractAction;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -40,10 +43,22 @@ public class HelpManager {
 
 	/**
 	 * Exposes the help manager's entry point (handle) to Action-oriented applications,
-	 * a method that's executed when the corresponding Action is triggered.
-	 * @return Reference on the right method from this help manager
+	 * a method that's executed when the corresponding key-binding is triggered.
+	 * @return Reference on Action to trigger the local help
 	 */
-	public Runnable getKeyboardAction() {
+	public Action getKeyboardAction() {
+		return new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) { processHelpKey(); }
+		};
+	}
+
+	/**
+	 * Exposes the help manager's entry point (handle) to Runnable-oriented applications,
+	 * a method that's executed when the corresponding key-binding is triggered.
+	 * @return Reference on Runnable to trigger the local help
+	 */
+	public Runnable getKeyboardRunnable() {
 		return this::processHelpKey;
 	}
 
